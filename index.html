@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PIÈCE-SÛRE AI">
+  <meta name="theme-color" content="#0b1220">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>PIÈCE-SÛRE AI — iPad / GitHub Pages</title>
+  <style>
+    :root{
+      --bg0:#060b16;
+      --bg1:#0b1220;
+      --line: rgba(255,255,255,.10);
+      --text:#eef3ff;
+      --muted:#9fb0d0;
+      --muted2:#6f7c9c;
+      --blue:#5aa7ff;
+      --green:#40d39b;
+      --shadow: 0 24px 80px rgba(0,0,0,.35);
+      --max: 1280px;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    html { -webkit-text-size-adjust: 100%; }
+    body{
+      margin:0;
+      color:var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 700px at 20% 10%, rgba(90,167,255,.18), transparent 48%),
+        radial-gradient(900px 600px at 85% 20%, rgba(64,211,155,.14), transparent 42%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 42%, #050812 100%);
+      -webkit-font-smoothing: antialiased;
+      touch-action: manipulation;
+    }
+    button, input, textarea, select { font: inherit; }
+    .hidden { display:none !important; }
+    .screen{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .wrap{ width:min(var(--max), 100%); margin:0 auto; padding:20px 20px 34px; }
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+    .login-card{ width:min(520px, 100%); border-radius:30px; padding:30px; }
+    .brand, .brand-title, .row, .topbar .right, .hero .right, .actions, .mini{
+      display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    }
+    .logo{
+      width:54px; height:54px; border-radius:18px; flex:0 0 auto; position:relative;
+      background: linear-gradient(145deg, rgba(90,167,255,.95), rgba(47,124,255,.72));
+      box-shadow: 0 18px 34px rgba(47,124,255,.35);
+    }
+    h1,h2,p{ margin:0; }
+    h1{ font-size:clamp(28px, 4vw, 40px); letter-spacing:-.03em; line-height:1.05; }
+    h2{ font-size:18px; letter-spacing:-.02em; }
+    p, .sub, .hero .label{ color:var(--muted); line-height:1.55; }
+    .sub, .hero .label{ margin-top:8px; font-size:14px; }
+    .badge, .label-chip{
+      display:inline-flex; align-items:center; gap:8px; padding:9px 12px; border-radius:999px;
+      border:1px solid var(--line); background:rgba(255,255,255,.05); color:#e8efff; font-size:12px; white-space:nowrap;
+    }
+    .badge.dot::before, .label-chip .dot{
+      content:""; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(64,211,155,.14);
+    }
+    .field{ display:grid; gap:8px; margin-top:14px; }
+    .field label{ font-size:13px; color:var(--muted); }
+    .input, textarea, select{
+      width:100%; border-radius:16px; border:1px solid rgba(255,255,255,.10);
+      background:rgba(7,12,23,.58); color:var(--text); padding:14px 15px; outline:none;
+    }
+    textarea{ min-height:110px; resize:vertical; }
+    .input:focus, textarea:focus, select:focus{ border-color:rgba(90,167,255,.55); box-shadow:0 0 0 4px rgba(90,167,255,.14); }
+    .btn{
+      appearance:none; border:1px solid rgba(255,255,255,.11); background:rgba(255,255,255,.06); color:var(--text);
+      border-radius:16px; padding:13px 16px; min-height:48px; display:inline-flex; align-items:center; justify-content:center;
+      cursor:pointer; text-decoration:none; -webkit-tap-highlight-color:transparent;
+    }
+    .btn.primary{ background:linear-gradient(180deg, rgba(90,167,255,.98), rgba(47,124,255,.86)); color:#fff; }
+    .btn.danger{ background:rgba(255,107,122,.12); border-color:rgba(255,107,122,.22); color:#ffd8dc; }
+    .btn.small{ padding:10px 12px; min-height:40px; font-size:13px; border-radius:14px; }
+    .topbar, .hero{ display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+    .topbar{ margin-bottom:16px; }
+    .layout{ display:grid; grid-template-columns:1.28fr .88fr; gap:18px; align-items:start; margin-top:18px; }
+    .panel{
+      background:linear-gradient(180deg, rgba(16,26,49,.80), rgba(10,15,27,.72));
+      border:1px solid rgba(255,255,255,.10); border-radius:24px; box-shadow:var(--shadow); overflow:hidden;
+    }
+    .panel-inner{ padding:18px; }
+    .panel-head, .section-head, .check-head, .history-item .top, .row.space, .modal-head{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    .panel-head{ padding:18px 18px 0; }
+    .kpis, .summary-grid, .form-grid, .checks, .chat, .history{ display:grid; gap:12px; }
+    .kpis{ grid-template-columns:repeat(4, minmax(0,1fr)); margin-top:18px; }
+    .summary-grid{ grid-template-columns:repeat(3, minmax(0,1fr)); margin-top:14px; }
+    .form-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); margin-top:18px; }
+    .field.full{ grid-column:1 / -1; }
+    .kpi, .summary-card, .check-card, .history-item, .bubble, .info, .login-note{
+      border-radius:18px; padding:14px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09);
+    }
+    .kpi .t, .summary-card .t{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .kpi .v, .summary-card .v{ margin-top:8px; font-size:16px; font-weight:650; overflow-wrap:anywhere; }
+    .kpi .s, .summary-card .s, .check-detail, .history-item .detail{ margin-top:6px; font-size:12px; color:var(--muted2); line-height:1.45; }
+    .section{ margin-top:18px; }
+    .progress{ width:100%; height:12px; border-radius:999px; background:rgba(255,255,255,.07); overflow:hidden; margin-top:10px; }
+    .progress > span{ display:block; height:100%; width:0; background:linear-gradient(90deg, var(--blue), #72c7ff); }
+    .check-status{ font-size:12px; padding:6px 10px; border-radius:999px; white-space:nowrap; }
+    .ok{ background:rgba(64,211,155,.12); color:#bbf7e1; }
+    .warn{ background:rgba(255,191,92,.12); color:#ffe3b5; }
+    .info-badge{ background:rgba(90,167,255,.12); color:#d4e8ff; }
+    .neutral{ background:rgba(159,176,208,.10); color:#d7e1f5; }
+    .chat, .history{ max-height:420px; overflow:auto; }
+    .bubble.user{ margin-left:auto; background:rgba(90,167,255,.12); }
+    .bubble.assistant{ background:rgba(64,211,155,.08); }
+    .bubble .meta, .history-item .time{ font-size:11px; color:var(--muted2); }
+    .bubble .txt{ white-space:pre-wrap; line-height:1.55; font-size:13px; }
+    .list{ margin:0; padding-left:18px; color:var(--muted); }
+    .footer, .savebar{ margin-top:18px; color:var(--muted2); font-size:12px; }
+    .savebar{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .footer{ text-align:center; }
+    .file-hide{ display:none; }
+    .modal{ position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:18px; }
+    .modal-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,.58); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); }
+    .modal-card{ position:relative; width:min(980px, 100%); max-height:min(90vh, 920px); overflow:auto; border-radius:28px; }
+    .modal-head{ margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,.08); }
+
+    body.tablet-focus .wrap{ width:min(1440px, 100%); }
+    body.tablet-focus .topbar{
+      position:sticky; top:0; z-index:20; margin-bottom:20px; padding:12px;
+      background:rgba(6,11,22,.82); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border-radius:18px;
+    }
+    body.tablet-focus .layout{ grid-template-columns:1fr; gap:22px; }
+    body.tablet-focus .panel{ border-radius:28px; }
+    body.tablet-focus .panel-inner, body.tablet-focus .panel-head{ padding-left:24px; padding-right:24px; }
+    body.tablet-focus .btn{ min-height:54px; padding:14px 18px; border-radius:18px; font-size:16px; }
+    body.tablet-focus .input, body.tablet-focus textarea, body.tablet-focus select{ min-height:54px; font-size:16px; }
+    body.tablet-focus .chat, body.tablet-focus .history{ max-height:520px; }
+    body.tablet-focus .check-title{ font-size:18px; }
+    body.tablet-focus .check-detail, body.tablet-focus .bubble .txt{ font-size:15px; }
+    body.tablet-focus .footer{ display:none; }
+    body.tablet-focus .modal-card{ width:min(1100px, 100%); max-height:92vh; }
+
+    @media (max-width:1100px){
+      .layout{ grid-template-columns:1fr; }
+      .kpis, .summary-grid{ grid-template-columns:repeat(2, minmax(0,1fr)); }
+    }
+    @media (max-width:760px){
+      .wrap{ padding:14px 12px 20px; }
+      .topbar, .hero{ flex-direction:column; }
+      .form-grid, .kpis, .summary-grid{ grid-template-columns:1fr; }
+      .actions .btn{ width:100%; }
+      .modal{ padding:10px; }
+    }
+    @media print{
+      body{ background:#fff !important; color:#111 !important; }
+      .topbar, .actions, .footer, .badge, .label-chip, .btn, .modal{ display:none !important; }
+      .panel, .kpi, .summary-card, .check-card, .history-item, .bubble{
+        background:#fff !important; color:#111 !important; border:1px solid #ddd !important; box-shadow:none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="screen">
+    <div class="login-card glass">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <div class="badge dot">PIÈCE-SÛRE AI — iPad / GitHub Pages</div>
+          <h1 style="margin-top:12px;">Connexion locale</h1>
+          <p class="sub">Version web autonome, sans backend. Parfaite pour Safari sur iPad.</p>
+        </div>
+      </div>
+      <div class="field">
+        <label for="loginUser">Utilisateur</label>
+        <input id="loginUser" class="input" type="text" autocomplete="username" value="atelier">
+      </div>
+      <div class="field">
+        <label for="loginPass">Mot de passe</label>
+        <input id="loginPass" class="input" type="password" autocomplete="current-password" value="1234">
+      </div>
+      <div class="row space" style="margin-top:18px;">
+        <button id="loginBtn" class="btn primary" type="button">Entrer dans l'application</button>
+        <span class="badge">Accès local de démonstration</span>
+      </div>
+      <div class="login-note">
+        <strong>Important :</strong> cette version fonctionne dans le navigateur. Elle ne remplace pas le backend Node/SQLite.
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="hidden">
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand-title">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <div class="row">
+              <span class="badge dot">PIÈCE-SÛRE AI</span>
+              <span class="badge">Mode local prudent</span>
+            </div>
+            <h1 style="margin-top:10px;">Assistant d’aide à la vente</h1>
+            <p class="sub">Dossier, contrôles, import, export et impression.</p>
+          </div>
+        </div>
+        <div class="right">
+          <span id="saveStatus" class="label-chip"><span class="dot"></span>Prêt</span>
+          <button id="focusBtn" class="btn small" type="button">Ouvrir en plein écran</button>
+          <button id="logoutBtn" class="btn small" type="button">Déconnexion</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="hero">
+            <div>
+              <h2>Dossier local</h2>
+              <p class="label">Les vérifications externes ne sont pas branchées. Le contrôle reste local et prudent.</p>
+            </div>
+            <div class="right">
+              <button id="runChecksBtnTop" class="btn primary" type="button">Vérifications multiples</button>
+              <button id="printBtnTop" class="btn" type="button">Imprimer la fiche client</button>
+              <button id="exportBtnTop" class="btn" type="button">Exporter JSON</button>
+            </div>
+          </div>
+          <div class="kpis" id="kpis"></div>
+        </div>
+      </div>
+
+      <div class="layout">
+        <section>
+          <div class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Dossier client</h2>
+                <p>Modifie les champs, importe un dossier, puis lance les contrôles.</p>
+              </div>
+              <span class="badge" id="completenessBadge">Complétude</span>
+            </div>
+            <div class="panel-inner">
+              <div class="summary-grid" id="summaryGrid"></div>
+              <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+              <div class="form-grid" id="dossierGrid"></div>
+              <div class="actions">
+                <label class="btn primary" for="fileInput">Charger un dossier réel &gt;</label>
+                <input id="fileInput" class="file-hide" type="file" accept=".json,.txt,.csv,.xml,.pdf,.jpg,.jpeg,.png">
+                <button id="runChecksBtn" class="btn" type="button">Vérifications multiples</button>
+                <button id="printBtn" class="btn" type="button">Imprimer la fiche client</button>
+                <button id="exportBtn" class="btn" type="button">Exporter JSON</button>
+                <button id="resetBtn" class="btn danger" type="button">Réinitialiser</button>
+              </div>
+              <div class="info"><strong>Règle :</strong> vérifier, décider, tracer. Aucune compatibilité n’est inventée.</div>
+              <div class="savebar">
+                <span id="saveHint">Aucune sauvegarde.</span>
+                <span id="importHint">Aucun fichier importé.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel section">
+            <div class="panel-head"><div><h2>Vérifications multiples</h2><p>Contrôle local prudent.</p></div></div>
+            <div class="panel-inner"><div id="checks" class="checks"></div></div>
+          </div>
+        </section>
+
+        <aside>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Assistant local</h2><p>Réponses prudentes et tracées.</p></div></div>
+            <div class="panel-inner">
+              <div id="chat" class="chat"></div>
+              <form id="chatForm">
+                <div class="field">
+                  <label for="chatInput">Message</label>
+                  <textarea id="chatInput" placeholder="Ex. : vérifie le dossier, exporte en JSON..."></textarea>
+                </div>
+                <div class="actions">
+                  <button class="btn primary" type="submit">Envoyer</button>
+                  <button id="clearChatBtn" class="btn" type="button">Effacer la conversation</button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="panel section">
+            <div class="panel-head">
+              <div><h2>Historique</h2><p>Actions enregistrées dans le navigateur.</p></div>
+              <span class="badge" id="historyCount">0 entrée</span>
+            </div>
+            <div class="panel-inner"><div id="history" class="history"></div></div>
+          </div>
+        </aside>
+      </div>
+      <div class="footer">PIÈCE-SÛRE AI — version autonome GitHub Pages / iPad.</div>
+    </div>
+  </div>
+
+  <div id="checksModal" class="modal hidden" aria-hidden="true">
+    <div class="modal-backdrop" id="checksModalBackdrop"></div>
+    <div class="panel modal-card" role="dialog" aria-modal="true" aria-labelledby="checksModalTitle">
+      <div class="panel-inner">
+        <div class="modal-head">
+          <div>
+            <h2 id="checksModalTitle">Vérifications multiples</h2>
+            <p>Résultats locaux prudents, sans validation externe.</p>
+          </div>
+          <button id="closeChecksModal" class="btn small" type="button">Fermer</button>
+        </div>
+        <div id="checksModalBody" class="checks"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE = { auth:"psa_auth_v1", dossier:"psa_dossier_v1", history:"psa_history_v1", messages:"psa_messages_v1", imports:"psa_imports_v1", checks:"psa_checks_v1" };
+    const defaultDossier = {
+      client:"Atelier / client à compléter", vehicule:"Renault Scénic III", immatriculation:"CZ-505-AV",
+      vin:"VF1JZ0Y0349637414", premiereMec:"27/09/2013", d2:"JZ0Y03", p1:"1995", moteur:"M9R 615",
+      disqueAvant:"296", capteurUsure:"non", plaquettesOE:"410605961R", plaquettesAncienneRef:"410600011R",
+      disquesOE:"402060010R", notes:"Version web autonome pour iPad / GitHub Pages. Aucune API externe n'est branchée."
+    };
+    const FIELD_CONFIG = [
+      ["client","Client"],["vehicule","Véhicule"],["immatriculation","Immatriculation"],["vin","VIN"],
+      ["premiereMec","1ère immatriculation"],["d2","D.2"],["p1","P.1"],["moteur","Code moteur"],
+      ["disqueAvant","Disque avant (mm)"],["capteurUsure","Capteur d’usure","select",["non","oui","à confirmer"]],
+      ["plaquettesOE","Plaquettes OE"],["plaquettesAncienneRef","Ancienne référence"],["disquesOE","Disques OE"],
+      ["notes","Notes","textarea"]
+    ].map(([key,label,type="text",options]) => ({key,label,type,options,full:type==="textarea"}));
+    const KEY_MAP = {client:"client",nom:"client",vehicule:"vehicule",vehicle:"vehicule",immatriculation:"immatriculation",plaque:"immatriculation",vin:"vin",d2:"d2",p1:"p1",premiere_mec:"premiereMec",moteur:"moteur",code_moteur:"moteur",disque_avant:"disqueAvant",capteur_usure:"capteurUsure",plaquettes_oe:"plaquettesOE",disques_oe:"disquesOE",notes:"notes"};
+    const state = { authenticated:false, user:"", dossier:structuredClone(defaultDossier), history:[], messages:[], imports:[], checks:[], lastSaved:null };
+    let saveTimer = null;
+    const $ = (s) => document.querySelector(s);
+    const escapeHTML = (str) => String(str ?? "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    const now = () => Date.now();
+    const formatDT = (ms) => new Date(ms).toLocaleString("fr-FR", { dateStyle:"short", timeStyle:"short" });
+    const normalizeKey = (key) => String(key || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"_").replace(/^_+|_+$/g,"");
+
+    function loadState() {
+      try {
+        const auth = JSON.parse(localStorage.getItem(STORAGE.auth) || "null");
+        state.authenticated = !!auth?.ok;
+        state.user = auth?.user || "";
+        const dossier = JSON.parse(localStorage.getItem(STORAGE.dossier) || "null");
+        if (dossier && typeof dossier === "object") state.dossier = { ...structuredClone(defaultDossier), ...dossier };
+        ["history","messages","imports","checks"].forEach((key) => {
+          const value = JSON.parse(localStorage.getItem(STORAGE[key]) || "null");
+          if (Array.isArray(value)) state[key] = value;
+        });
+      } catch (e) {}
+      if (!state.history.length) state.history.unshift({ ts:now(), title:"Application prête", detail:"Dossier local ouvert en mode prudent." });
+      if (!state.messages.length) state.messages.push({ role:"assistant", ts:now(), text:"Bonjour. Je suis en mode local prudent. Je peux préparer le dossier, lancer les vérifications, exporter ou imprimer." });
+      if (!state.checks.length) buildChecks(true);
+    }
+    function persist() {
+      localStorage.setItem(STORAGE.auth, JSON.stringify({ ok:state.authenticated, user:state.user, ts:now() }));
+      ["dossier","history","messages","imports","checks"].forEach((key) => localStorage.setItem(STORAGE[key], JSON.stringify(state[key])));
+      state.lastSaved = now();
+      updateSaveStatus("Sauvegardé");
+    }
+    function updateSaveStatus(text) {
+      const el = $("#saveStatus");
+      if (el) el.innerHTML = `<span class="dot"></span>${escapeHTML(text)}`;
+      const hint = $("#saveHint");
+      if (hint) hint.textContent = state.lastSaved ? `Dernière sauvegarde : ${formatDT(state.lastSaved)}` : "Aucune sauvegarde";
+    }
+    function addHistory(title, detail) {
+      state.history.unshift({ ts:now(), title, detail });
+      state.history = state.history.slice(0, 40);
+      persist();
+      renderHistory();
+    }
+    function addMessage(role, text) {
+      state.messages.push({ role, text, ts:now() });
+      state.messages = state.messages.slice(-40);
+      persist();
+      renderChat();
+    }
+    function countFilledFields() {
+      return FIELD_CONFIG.filter((f) => String(state.dossier[f.key] ?? "").trim() !== "").length;
+    }
+    function renderKpis() {
+      const filled = countFilledFields();
+      const total = FIELD_CONFIG.length;
+      const items = [
+        ["Véhicule", state.dossier.vehicule, state.dossier.immatriculation],
+        ["VIN", state.dossier.vin ? state.dossier.vin.slice(-8) : "Non renseigné", "Dossier local"],
+        ["Complétude", `${Math.round((filled / total) * 100)}%`, `${filled}/${total} champs`],
+        ["État", "Local prudent", "Aucune validation externe"]
+      ];
+      $("#kpis").innerHTML = items.map(([t,v,s]) => `<div class="kpi"><div class="t">${escapeHTML(t)}</div><div class="v">${escapeHTML(v)}</div><div class="s">${escapeHTML(s)}</div></div>`).join("");
+    }
+    function renderSummary() {
+      const d = state.dossier;
+      const filled = countFilledFields();
+      const total = FIELD_CONFIG.length;
+      const pct = Math.round((filled / total) * 100);
+      const items = [
+        ["Client", d.client || "Non renseigné", "Informations de base"],
+        ["Plaquettes", d.plaquettesOE || "À compléter", d.plaquettesAncienneRef || "Aucune ancienne référence"],
+        ["Disques", d.disquesOE || "À compléter", `${d.disqueAvant || "?"} mm`],
+        ["Complétude", `${pct}%`, "Contrôle local"],
+        ["Capteur", d.capteurUsure || "à confirmer", "Statut déclaré"],
+        ["Moteur", d.moteur || "À compléter", d.vehicule || "Véhicule"]
+      ];
+      $("#summaryGrid").innerHTML = items.map(([t,v,s]) => `<div class="summary-card"><div class="t">${escapeHTML(t)}</div><div class="v">${escapeHTML(v)}</div><div class="s">${escapeHTML(s)}</div></div>`).join("");
+      $("#progressBar").style.width = `${pct}%`;
+      $("#completenessBadge").textContent = `Complétude ${pct}%`;
+    }
+    function renderDossier() {
+      $("#dossierGrid").innerHTML = FIELD_CONFIG.map((f) => {
+        const value = state.dossier[f.key] ?? "";
+        const control = f.type === "select"
+          ? `<select class="input dossier-input" data-key="${f.key}">${f.options.map((opt) => `<option ${value===opt?"selected":""}>${escapeHTML(opt)}</option>`).join("")}</select>`
+          : f.type === "textarea"
+            ? `<textarea class="dossier-input" data-key="${f.key}">${escapeHTML(value)}</textarea>`
+            : `<input class="input dossier-input" data-key="${f.key}" value="${escapeHTML(value)}">`;
+        return `<div class="field ${f.full?"full":""}"><label>${escapeHTML(f.label)}</label>${control}</div>`;
+      }).join("");
+      renderKpis();
+      renderSummary();
+    }
+    function resultCard(c) {
+      return `<div class="check-card"><div class="check-head"><div class="check-title">${escapeHTML(c.title)}</div><div class="check-status ${c.level}">${escapeHTML(c.status)}</div></div><div class="check-detail">${escapeHTML(c.detail)}</div></div>`;
+    }
+    function checksMarkup() { return state.checks.map(resultCard).join(""); }
+    function buildChecks(silent = false) {
+      const d = state.dossier;
+      const filled = countFilledFields();
+      const total = FIELD_CONFIG.length;
+      const hasMain = Boolean(d.vehicule && d.vin && d.immatriculation);
+      state.checks = [
+        { title:"Dossier véhicule", status:hasMain?"Cohérent localement":"À compléter", detail:hasMain?`${d.vehicule} | ${d.immatriculation} | ${d.vin}`:"Informations de base incomplètes.", level:hasMain?"ok":"warn" },
+        { title:"Plaquettes avant", status:d.plaquettesOE?"Référence renseignée":"À compléter", detail:d.plaquettesOE?`${d.plaquettesOE}${d.plaquettesAncienneRef?` | Ancienne : ${d.plaquettesAncienneRef}`:""}`:"Aucune référence plaquette.", level:d.plaquettesOE?"ok":"warn" },
+        { title:"Disques avant", status:d.disquesOE?"Référence renseignée":"À compléter", detail:d.disquesOE?`${d.disquesOE} | ${d.disqueAvant || "?"} mm`:"Aucune référence disque.", level:d.disquesOE?"ok":"warn" },
+        { title:"Capteur d’usure", status:d.capteurUsure==="non"?"Absence déclarée":d.capteurUsure==="oui"?"Présence déclarée":"À confirmer", detail:"Statut issu uniquement du dossier local.", level:d.capteurUsure==="à confirmer"?"warn":"info-badge" },
+        { title:"Contrôle externe", status:"Non branché", detail:"Aucune API externe n’est connectée dans cette version GitHub Pages.", level:"neutral" },
+        { title:"Complétude", status:`${filled}/${total} champs`, detail:"Contrôle de présence locale, pas une validation constructeur.", level:filled>=total-2?"ok":"warn" }
+      ];
+      if (!silent) addHistory("Vérifications multiples", "Contrôle local exécuté.");
+      else persist();
+      renderChecks();
+    }
+    function renderChecks() {
+      const html = checksMarkup();
+      const target = $("#checks");
+      const modal = $("#checksModalBody");
+      if (target) target.innerHTML = html;
+      if (modal) modal.innerHTML = html;
+    }
+    function openChecksModal() {
+      buildChecks(false);
+      $("#checksModal").classList.remove("hidden");
+      $("#checksModal").setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+    function closeChecksModal() {
+      $("#checksModal").classList.add("hidden");
+      $("#checksModal").setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+    function renderHistory() {
+      $("#history").innerHTML = state.history.map((item) => `<div class="history-item"><div class="top"><div>${escapeHTML(item.title)}</div><div class="time">${escapeHTML(formatDT(item.ts))}</div></div><div class="detail">${escapeHTML(item.detail)}</div></div>`).join("");
+      $("#historyCount").textContent = `${state.history.length} entrée${state.history.length>1?"s":""}`;
+      $("#importHint").textContent = state.imports.length ? `Dernier import : ${state.imports[0].name}` : "Aucun fichier importé.";
+    }
+    function renderChat() {
+      $("#chat").innerHTML = state.messages.map((msg) => `<div class="bubble ${msg.role}"><div class="meta">${msg.role==="user"?"Vous":"Assistant"} • ${escapeHTML(formatDT(msg.ts))}</div><div class="txt">${escapeHTML(msg.text)}</div></div>`).join("");
+      $("#chat").scrollTop = $("#chat").scrollHeight;
+    }
+    function updateAuthUI() {
+      $("#loginScreen").classList.toggle("hidden", state.authenticated);
+      $("#app").classList.toggle("hidden", !state.authenticated);
+    }
+    function login() {
+      const user = $("#loginUser").value.trim();
+      const pass = $("#loginPass").value.trim();
+      if (user === "atelier" && pass === "1234") {
+        state.authenticated = true;
+        state.user = user;
+        persist();
+        updateAuthUI();
+        addHistory("Connexion", `Connexion locale réussie pour ${user}.`);
+        renderAll();
+      } else alert("Identifiants incorrects. Utilise atelier / 1234.");
+    }
+    function logout() {
+      state.authenticated = false;
+      state.user = "";
+      localStorage.removeItem(STORAGE.auth);
+      updateAuthUI();
+    }
+    function assistantReply(text) {
+      const t = text.toLowerCase();
+      const d = state.dossier;
+      if (t.includes("imprim")) return "Utilise le bouton « Imprimer la fiche client ».";
+      if (t.includes("export")) return "L’export JSON contient le dossier, l’historique, les messages et les contrôles.";
+      if (t.includes("stock") || t.includes("prix") || t.includes("délai") || t.includes("delai")) return "Je ne confirme aucun stock, prix ou délai sans source externe branchée.";
+      if (t.includes("vérif") || t.includes("verif") || t.includes("contrôle") || t.includes("controle")) return "Les vérifications multiples ouvrent une fenêtre avec le contrôle local du dossier.";
+      if (t.includes("dossier") || t.includes("véhicule") || t.includes("vehicule")) return `Dossier actif : ${d.vehicule} | ${d.immatriculation} | VIN ${d.vin}.`;
+      return "Je peux préparer le dossier, lancer les contrôles locaux, importer, exporter ou imprimer. Aucune validation externe n’est branchée.";
+    }
+    function mergeIncomingData(obj) {
+      const source = obj?.dossier && typeof obj.dossier === "object" ? obj.dossier : obj || {};
+      Object.entries(source).forEach(([k,v]) => {
+        const key = KEY_MAP[normalizeKey(k)];
+        if (key && v != null) state.dossier[key] = String(v).trim();
+      });
+      addHistory("Dossier mis à jour", "Champs reconnus fusionnés depuis un fichier local.");
+      renderDossier();
+      renderChecks();
+    }
+    function parseCsv(text) {
+      const lines = String(text || "").split(/\r?\n/).filter(Boolean);
+      if (lines.length < 2) return {};
+      const sep = lines[0].includes(";") ? ";" : ",";
+      const headers = lines[0].split(sep).map(normalizeKey);
+      const values = lines[1].split(sep);
+      return Object.fromEntries(headers.map((h,i) => [h, (values[i] || "").trim()]));
+    }
+    async function handleImport(file) {
+      const name = file.name || "fichier";
+      const lower = name.toLowerCase();
+      let note = "Fichier joint enregistré";
+      if (/\.(json|txt|csv|xml)$/i.test(lower)) {
+        const text = await file.text();
+        if (lower.endsWith(".json")) mergeIncomingData(JSON.parse(text));
+        else if (lower.endsWith(".csv")) mergeIncomingData(parseCsv(text));
+        else if (lower.endsWith(".txt")) {
+          const obj = {};
+          text.split(/\r?\n/).forEach((line) => {
+            const m = line.match(/^\s*([^:=]+)\s*[:=]\s*(.+)\s*$/);
+            if (m) obj[normalizeKey(m[1])] = m[2].trim();
+          });
+          mergeIncomingData(obj);
+        }
+        note = "Fichier analysé";
+      }
+      state.imports.unshift({ name, type:file.type || "inconnu", size:file.size || 0, ts:now(), note });
+      state.imports = state.imports.slice(0, 20);
+      persist();
+      renderAll();
+      addHistory("Import fichier", `${name} — ${note}`);
+    }
+    function exportJSON() {
+      const payload = { app:"PIÈCE-SÛRE AI", version:"web-static-ipad", exportedAt:new Date().toISOString(), mode:"GitHub Pages / iPad", user:state.user, dossier:state.dossier, history:state.history, messages:state.messages, imports:state.imports, checks:state.checks };
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type:"application/json" }));
+      a.download = `piece-sure-ai-export-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      addHistory("Export JSON", "Export complet généré.");
+    }
+    function printSheet() { addHistory("Impression", "Impression de la fiche demandée."); window.print(); }
+    function resetLocalData() {
+      if (!confirm("Réinitialiser toutes les données locales ?")) return;
+      Object.values(STORAGE).forEach((key) => localStorage.removeItem(key));
+      location.reload();
+    }
+    function clearChat() {
+      if (!confirm("Effacer la conversation locale ?")) return;
+      state.messages = [{ role:"assistant", ts:now(), text:"Conversation effacée. Je reste en mode local prudent." }];
+      persist();
+      renderChat();
+    }
+    function updateFocusButton() {
+      const active = document.body.classList.contains("tablet-focus");
+      $("#focusBtn").textContent = active ? "Quitter le plein écran" : "Ouvrir en plein écran";
+    }
+    async function toggleFocusMode() {
+      const active = document.body.classList.contains("tablet-focus");
+      if (!active) {
+        document.body.classList.add("tablet-focus");
+        try {
+          if (document.documentElement.requestFullscreen) await document.documentElement.requestFullscreen();
+          else if (document.documentElement.webkitRequestFullscreen) document.documentElement.webkitRequestFullscreen();
+        } catch (e) {}
+      } else {
+        document.body.classList.remove("tablet-focus");
+        try {
+          if (document.fullscreenElement && document.exitFullscreen) await document.exitFullscreen();
+          else if (document.webkitFullscreenElement && document.webkitExitFullscreen) document.webkitExitFullscreen();
+        } catch (e) {}
+      }
+      updateFocusButton();
+    }
+    function renderAll() {
+      updateAuthUI();
+      renderDossier();
+      renderChecks();
+      renderHistory();
+      renderChat();
+      updateSaveStatus(state.lastSaved ? "Sauvegardé" : "Prêt");
+      updateFocusButton();
+    }
+    function bindEvents() {
+      $("#loginBtn").addEventListener("click", login);
+      $("#loginUser").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+      $("#loginPass").addEventListener("keydown", (e) => { if (e.key === "Enter") login(); });
+      $("#logoutBtn").addEventListener("click", logout);
+      $("#focusBtn").addEventListener("click", toggleFocusMode);
+      $("#runChecksBtn").addEventListener("click", openChecksModal);
+      $("#runChecksBtnTop").addEventListener("click", openChecksModal);
+      $("#closeChecksModal").addEventListener("click", closeChecksModal);
+      $("#checksModalBackdrop").addEventListener("click", closeChecksModal);
+      $("#printBtn").addEventListener("click", printSheet);
+      $("#printBtnTop").addEventListener("click", printSheet);
+      $("#exportBtn").addEventListener("click", exportJSON);
+      $("#exportBtnTop").addEventListener("click", exportJSON);
+      $("#resetBtn").addEventListener("click", resetLocalData);
+      $("#clearChatBtn").addEventListener("click", clearChat);
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeChecksModal(); });
+      document.addEventListener("fullscreenchange", () => {
+        if (!document.fullscreenElement) document.body.classList.remove("tablet-focus");
+        updateFocusButton();
+      });
+      $("#chatForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const text = $("#chatInput").value.trim();
+        if (!text) return;
+        $("#chatInput").value = "";
+        addMessage("user", text);
+        addMessage("assistant", assistantReply(text));
+        addHistory("Assistant local", text.slice(0, 80));
+      });
+      $("#fileInput").addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try { await handleImport(file); }
+        catch { alert("Impossible d'importer ce fichier."); }
+        finally { e.target.value = ""; }
+      });
+      document.addEventListener("input", (e) => {
+        if (!e.target.classList.contains("dossier-input")) return;
+        state.dossier[e.target.dataset.key] = e.target.value;
+        clearTimeout(saveTimer);
+        saveTimer = setTimeout(() => { persist(); renderKpis(); renderSummary(); }, 250);
+      });
+    }
+    function init() {
+      loadState();
+      bindEvents();
+      renderAll();
+    }
+    init();
+  </script>
+</body>
+</html>
