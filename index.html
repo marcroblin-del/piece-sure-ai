@@ -1,0 +1,1889 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PIÈCE-SÛRE AI</title>
+  <style>
+    :root{
+      --bg:#f4f6fb;
+      --bg2:#e9eef8;
+      --card:rgba(255,255,255,.78);
+      --card2:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --line:rgba(15,23,42,.10);
+      --shadow:0 18px 50px rgba(15,23,42,.12);
+      --shadow2:0 10px 30px rgba(15,23,42,.08);
+      --accent:#0a84ff;
+      --accent2:#34c759;
+      --danger:#ff453a;
+      --warn:#ff9f0a;
+      --ok:#30d158;
+      --radius:22px;
+      --radius2:16px;
+      --radius3:12px;
+      --space:16px;
+      --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(10,132,255,.10), transparent 30%),
+        radial-gradient(circle at top right, rgba(48,209,88,.10), transparent 28%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      overflow-x:hidden;
+    }
+    button,input,textarea,select{font:inherit}
+    button{
+      border:0;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    button:active{transform:scale(.98)}
+    .hidden{display:none !important}
+    .wrap{
+      width:min(1500px, calc(100% - 24px));
+      margin:0 auto;
+      padding:14px 0 24px;
+    }
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:10;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background:linear-gradient(180deg, rgba(244,246,251,.92), rgba(244,246,251,.70));
+      border-bottom:1px solid rgba(255,255,255,.55);
+    }
+    .topbar-inner{
+      width:min(1500px, calc(100% - 24px));
+      margin:0 auto;
+      min-height:76px;
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 0;
+    }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      min-width:0;
+    }
+    .logo{
+      width:52px;height:52px;border-radius:16px;
+      background:
+        linear-gradient(135deg, #0a84ff, #61d2ff 55%, #34c759);
+      box-shadow:0 14px 30px rgba(10,132,255,.25);
+      position:relative;
+      flex:0 0 auto;
+    }
+    .logo:before,.logo:after{
+      content:"";
+      position:absolute;
+      inset:auto;
+      background:#fff;
+      opacity:.95;
+      border-radius:999px;
+    }
+    .logo:before{width:18px;height:18px;left:12px;top:12px}
+    .logo:after{width:22px;height:6px;right:10px;bottom:14px}
+    .titleblock{min-width:0}
+    .title{
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.2px;
+      margin:0;
+      line-height:1.15;
+    }
+    .subtitle{
+      margin:3px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.2;
+    }
+    .top-actions{
+      display:flex; flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(15,23,42,.08);
+      color:var(--text);
+      box-shadow:var(--shadow2);
+      font-size:13px;
+      font-weight:650;
+    }
+    .chip small{color:var(--muted); font-weight:600}
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:9px;
+      padding:12px 15px;
+      border-radius:14px;
+      color:#fff;
+      background:linear-gradient(180deg, #1590ff, #0a84ff);
+      box-shadow:0 12px 24px rgba(10,132,255,.28);
+      font-weight:750;
+      letter-spacing:.1px;
+      white-space:nowrap;
+    }
+    .btn.secondary{
+      background:linear-gradient(180deg, #f8fafc, #edf2f7);
+      color:var(--text);
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:var(--shadow2);
+    }
+    .btn.success{
+      background:linear-gradient(180deg, #38d56a, #30c45f);
+      box-shadow:0 12px 24px rgba(48,209,88,.22);
+    }
+    .btn.danger{
+      background:linear-gradient(180deg, #ff6b63, #ff453a);
+      box-shadow:0 12px 24px rgba(255,69,58,.18);
+    }
+    .btn.dark{
+      background:linear-gradient(180deg, #1f2937, #0f172a);
+    }
+    .main{
+      padding:18px 0 28px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+      align-items:start;
+    }
+    .stack{
+      display:grid;
+      gap:16px;
+    }
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.88), rgba(255,255,255,.76));
+      border:1px solid rgba(255,255,255,.75);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+    .card-head{
+      padding:18px 18px 0 18px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .card-title{
+      margin:0;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.1px;
+    }
+    .card-subtitle{
+      margin:5px 0 0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .card-body{
+      padding:18px;
+    }
+    .hero{
+      padding:20px;
+      display:grid;
+      gap:12px;
+      background:
+        radial-gradient(circle at top right, rgba(10,132,255,.10), transparent 24%),
+        linear-gradient(135deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+    }
+    .hero-top{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center;
+    }
+    .hero-title{
+      font-size:22px; font-weight:900; margin:0;
+    }
+    .hero-text{
+      margin:5px 0 0; color:var(--muted); line-height:1.5; font-size:14px;
+    }
+    .hero-actions{
+      display:flex; flex-wrap:wrap; gap:10px;
+    }
+    .hero-metrics{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:12px;
+      margin-top:6px;
+    }
+    .metric{
+      background:rgba(255,255,255,.82);
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:18px;
+      padding:14px;
+      box-shadow:var(--shadow2);
+    }
+    .metric .k{
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:8px;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      font-weight:800;
+    }
+    .metric .v{
+      font-size:16px;
+      font-weight:850;
+    }
+    .form-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:12px;
+    }
+    .field{
+      display:grid;
+      gap:6px;
+    }
+    .field.full{grid-column:1 / -1}
+    label{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:750;
+      letter-spacing:.03em;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="search"], textarea{
+      width:100%;
+      border:1px solid rgba(15,23,42,.10);
+      background:rgba(255,255,255,.94);
+      border-radius:14px;
+      padding:13px 14px;
+      color:var(--text);
+      outline:none;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
+      transition:border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+    }
+    textarea{min-height:108px; resize:vertical; line-height:1.45}
+    input:focus, textarea:focus{
+      border-color:rgba(10,132,255,.45);
+      box-shadow:0 0 0 4px rgba(10,132,255,.12);
+    }
+    .row{
+      display:flex; flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+    .row.space{justify-content:space-between}
+    .section-actions{
+      display:flex; flex-wrap:wrap; gap:10px;
+      margin-top:14px;
+    }
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .list{
+      display:grid;
+      gap:10px;
+    }
+    .client-item,.history-item,.msg{
+      background:rgba(255,255,255,.84);
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:16px;
+      padding:13px;
+      box-shadow:var(--shadow2);
+    }
+    .client-item{
+      display:grid;
+      gap:8px;
+      text-align:left;
+      width:100%;
+    }
+    .client-item.active{
+      border-color:rgba(10,132,255,.42);
+      box-shadow:0 0 0 4px rgba(10,132,255,.10), var(--shadow2);
+    }
+    .client-item .t{font-weight:850}
+    .client-item .s,.history-item .s,.msg .s{color:var(--muted); font-size:12px; line-height:1.45}
+    .client-item .b{display:flex; gap:8px; flex-wrap:wrap}
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:750;
+      background:rgba(15,23,42,.05);
+      color:var(--text);
+      border:1px solid rgba(15,23,42,.08);
+    }
+    .badge.ok{background:rgba(48,209,88,.12); color:#0d7c35; border-color:rgba(48,209,88,.18)}
+    .badge.warn{background:rgba(255,159,10,.12); color:#a15d00; border-color:rgba(255,159,10,.18)}
+    .badge.info{background:rgba(10,132,255,.12); color:#0056bf; border-color:rgba(10,132,255,.18)}
+    .badge.danger{background:rgba(255,69,58,.12); color:#b21f18; border-color:rgba(255,69,58,.18)}
+    .client-meta{
+      display:grid;
+      grid-template-columns: repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin-top:12px;
+    }
+    .kv{
+      background:rgba(248,250,252,.92);
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:14px;
+      padding:10px 12px;
+      min-height:66px;
+    }
+    .kv .k{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:5px;
+    }
+    .kv .v{
+      font-weight:760;
+      line-height:1.35;
+      word-break:break-word;
+    }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .files{
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+    .file-item{
+      background:rgba(255,255,255,.84);
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:14px;
+      padding:11px 12px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .file-item .name{
+      font-weight:750;
+      word-break:break-word;
+    }
+    .file-item .meta{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.35;
+      margin-top:3px;
+    }
+    .file-item .tag{
+      white-space:nowrap;
+      font-size:12px;
+      padding:6px 9px;
+      border-radius:999px;
+      background:rgba(10,132,255,.10);
+      color:#005bc1;
+      font-weight:760;
+    }
+    .messages{
+      display:grid;
+      gap:10px;
+      max-height:340px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .msg.user{
+      background:linear-gradient(180deg, rgba(10,132,255,.12), rgba(10,132,255,.08));
+      border-color:rgba(10,132,255,.18);
+    }
+    .msg.assistant{
+      background:linear-gradient(180deg, rgba(48,209,88,.12), rgba(48,209,88,.06));
+      border-color:rgba(48,209,88,.18);
+    }
+    .msg .role{
+      display:inline-flex;
+      font-size:12px;
+      font-weight:850;
+      margin-bottom:6px;
+      letter-spacing:.03em;
+      text-transform:uppercase;
+    }
+    .msg .txt{line-height:1.55; white-space:pre-wrap; word-break:break-word}
+    .assistant-compose{
+      display:flex;
+      gap:10px;
+      margin-top:12px;
+    }
+    .assistant-compose textarea{min-height:82px}
+    .assistant-compose button{flex:0 0 auto; align-self:stretch; min-width:130px}
+    .history{
+      display:grid;
+      gap:10px;
+      max-height:320px;
+      overflow:auto;
+      padding-right:4px;
+    }
+    .history-item{
+      display:grid;
+      gap:5px;
+    }
+    .history-item .head{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:flex-start;
+    }
+    .history-item .head strong{font-size:14px}
+    .history-item .time{font-size:12px; color:var(--muted); white-space:nowrap}
+    .settings-grid{
+      display:grid;
+      gap:12px;
+    }
+    .footer-note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.55;
+      margin-top:10px;
+    }
+    .searchbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .searchbar input{flex:1}
+    .inline{
+      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+    }
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.48);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:30;
+      padding:16px;
+    }
+    .modal.open{display:flex}
+    .modal-card{
+      width:min(980px, 100%);
+      max-height:min(92vh, 980px);
+      overflow:auto;
+      background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(247,250,255,.96));
+      border-radius:26px;
+      box-shadow:0 30px 80px rgba(15,23,42,.30);
+      border:1px solid rgba(255,255,255,.7);
+    }
+    .modal-head{
+      position:sticky;
+      top:0;
+      background:inherit;
+      padding:18px 18px 0 18px;
+      z-index:2;
+    }
+    .modal-body{padding:18px}
+    .check-grid{
+      display:grid;
+      grid-template-columns: repeat(5, minmax(0,1fr));
+      gap:12px;
+      margin-top:14px;
+    }
+    .check{
+      border-radius:18px;
+      background:rgba(255,255,255,.84);
+      border:1px solid rgba(15,23,42,.08);
+      padding:14px;
+      box-shadow:var(--shadow2);
+      min-height:128px;
+    }
+    .check .k{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+      margin-bottom:10px;
+    }
+    .check .v{
+      font-size:15px;
+      font-weight:800;
+      line-height:1.4;
+    }
+    .check .d{
+      margin-top:8px;
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+    .check .state{
+      display:inline-flex;
+      margin-top:10px;
+      font-size:12px;
+      font-weight:800;
+      border-radius:999px;
+      padding:6px 9px;
+      background:rgba(15,23,42,.06);
+    }
+    .check.ok .state{background:rgba(48,209,88,.12); color:#0d7c35}
+    .check.warn .state{background:rgba(255,159,10,.14); color:#a15d00}
+    .check.info .state{background:rgba(10,132,255,.12); color:#0056bf}
+    .check.danger .state{background:rgba(255,69,58,.12); color:#b21f18}
+    .notice{
+      padding:12px 14px;
+      border-radius:16px;
+      background:rgba(10,132,255,.08);
+      border:1px solid rgba(10,132,255,.14);
+      color:#04489e;
+      font-size:13px;
+      line-height:1.5;
+    }
+    .notice.ok{background:rgba(48,209,88,.10); border-color:rgba(48,209,88,.16); color:#11612b}
+    .notice.warn{background:rgba(255,159,10,.10); border-color:rgba(255,159,10,.18); color:#8e5300}
+    .login-screen{
+      position:fixed;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:
+        radial-gradient(circle at top left, rgba(10,132,255,.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(48,209,88,.16), transparent 26%),
+        linear-gradient(180deg, rgba(244,246,251,.96), rgba(234,240,250,.98));
+      z-index:40;
+      padding:18px;
+    }
+    .login-card{
+      width:min(520px, 100%);
+      border-radius:30px;
+      background:rgba(255,255,255,.84);
+      border:1px solid rgba(255,255,255,.8);
+      box-shadow:0 30px 90px rgba(15,23,42,.20);
+      overflow:hidden;
+    }
+    .login-card .head{
+      padding:26px 24px 0;
+      text-align:center;
+    }
+    .login-card .brand-title{
+      margin:12px 0 0;
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:.2px;
+    }
+    .login-card .brand-desc{
+      color:var(--muted);
+      line-height:1.55;
+      margin:10px 0 0;
+      font-size:14px;
+    }
+    .login-card .body{padding:22px 24px 24px}
+    .login-card .fields{display:grid; gap:12px}
+    .login-card .actions{display:flex; gap:10px; margin-top:14px; flex-wrap:wrap}
+    .tiny{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+      margin-top:12px;
+    }
+    #printArea{
+      display:none;
+      padding:24px;
+      color:#000;
+      background:#fff;
+    }
+    #printArea h1,#printArea h2,#printArea h3{margin:0 0 8px}
+    #printArea .sheet{
+      border:1px solid #ddd;
+      border-radius:16px;
+      padding:18px;
+      margin-bottom:14px;
+    }
+    #printArea .pgrid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    #printArea .pbox{
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      padding:10px 12px;
+      min-height:60px;
+    }
+    #printArea .pbox .k{
+      color:#555;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-weight:700;
+      margin-bottom:4px;
+    }
+    #printArea .pbox .v{font-weight:700; line-height:1.4}
+    #printArea ul{margin:8px 0 0 18px; padding:0}
+    @media (max-width: 1180px){
+      .grid{grid-template-columns:1fr}
+      .hero-metrics{grid-template-columns:repeat(2, minmax(0,1fr))}
+      .check-grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+    }
+    @media (max-width: 720px){
+      .topbar-inner{flex-direction:column; align-items:stretch}
+      .brand{align-items:flex-start}
+      .top-actions{justify-content:flex-start}
+      .hero-metrics{grid-template-columns:1fr}
+      .form-grid,.split,.client-meta,.check-grid{grid-template-columns:1fr}
+      .assistant-compose{flex-direction:column}
+      .assistant-compose button{min-width:0}
+      .card-head{flex-direction:column}
+      .modal-body{padding:14px}
+    }
+    @media print{
+      body > :not(#printArea){display:none !important}
+      #printArea{display:block !important}
+      @page{margin:10mm}
+    }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="head">
+        <div class="logo" style="margin:0 auto"></div>
+        <div class="brand-title">PIÈCE-SÛRE AI</div>
+        <p class="brand-desc">
+          Atelier premium, iPad-first, mode local prudent, fiches clients, vérifications multiples,
+          import de dossier réel, export JSON et impression.
+        </p>
+      </div>
+      <div class="body">
+        <form id="loginForm" class="fields">
+          <div class="field">
+            <label for="loginUser">Utilisateur</label>
+            <input id="loginUser" type="text" autocomplete="username" placeholder="atelier" value="atelier" />
+          </div>
+          <div class="field">
+            <label for="loginPass">Mot de passe</label>
+            <input id="loginPass" type="password" autocomplete="current-password" placeholder="1234" value="1234" />
+          </div>
+          <div class="actions">
+            <button class="btn" type="submit">Entrer dans l’atelier</button>
+            <button class="btn secondary" type="button" id="demoFillBtn">Charger la démo Scénic III</button>
+          </div>
+          <div class="tiny">
+            Démo locale : <strong>atelier / 1234</strong><br/>
+            Aucun service externe n’est obligatoire. Le bouton “Vérifications multiples” est prêt à être branché plus tard sur des API.
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="titleblock">
+          <h1 class="title">PIÈCE-SÛRE AI</h1>
+          <p class="subtitle">Assistant premium pour dossiers véhicules, fiches clients, vérifications multiples et impression.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span id="netBadge" class="chip">● <small>Statut</small> <strong>Local</strong></span>
+        <span id="modeBadge" class="chip">● <small>Mode</small> <strong>Hybride</strong></span>
+        <button class="btn secondary" id="tabletBtn" type="button">Mode tablette</button>
+        <button class="btn secondary" id="exportBtnTop" type="button">Exporter JSON</button>
+        <button class="btn secondary" id="printBtnTop" type="button">Imprimer la fiche client</button>
+        <button class="btn danger" id="logoutBtn" type="button">Quitter</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="wrap main hidden">
+    <section class="card hero">
+      <div class="hero-top">
+        <div>
+          <h2 class="hero-title">Atelier premium, lisible, rapide, prêt iPad Pro</h2>
+          <p class="hero-text">
+            Ouvre un dossier réel, enregistre une fiche client, lance des vérifications multiples,
+            puis imprime ou exporte en un geste.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button class="btn success" id="openFolderBtn" type="button">Charger un dossier réel &gt;</button>
+          <button class="btn" id="multiCheckBtn" type="button">Vérifications multiples</button>
+          <button class="btn secondary" id="newClientBtn" type="button">Nouveau dossier</button>
+        </div>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric"><div class="k">Clients</div><div class="v" id="metricClients">0</div></div>
+        <div class="metric"><div class="k">Historique</div><div class="v" id="metricHistory">0</div></div>
+        <div class="metric"><div class="k">Fichiers locaux</div><div class="v" id="metricFiles">0</div></div>
+        <div class="metric"><div class="k">Mode</div><div class="v" id="metricMode">Local</div></div>
+      </div>
+      <div class="notice warn">
+        Ce fichier fonctionne <strong>sans dépendance externe obligatoire</strong>. Si tu renseignes une API plus tard dans “Branchement futur”, le bouton “Vérifications multiples” essaiera de l’utiliser puis retombe en mode local si besoin.
+      </div>
+    </section>
+
+    <div class="grid" style="margin-top:16px">
+      <div class="stack">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Nouveau dossier / fiche client</h3>
+              <p class="card-subtitle">Renseigne les infos, puis enregistre. Le dossier réel importé est attaché au client courant.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <form id="clientForm">
+              <input type="hidden" id="clientId" value="" />
+              <div class="form-grid">
+                <div class="field">
+                  <label for="clientName">Nom client</label>
+                  <input id="clientName" type="text" placeholder="Nom du client" />
+                </div>
+                <div class="field">
+                  <label for="clientCompany">Société / atelier</label>
+                  <input id="clientCompany" type="text" placeholder="Société / garage" />
+                </div>
+                <div class="field">
+                  <label for="clientPhone">Téléphone</label>
+                  <input id="clientPhone" type="text" placeholder="Téléphone" />
+                </div>
+                <div class="field">
+                  <label for="clientEmail">Email</label>
+                  <input id="clientEmail" type="email" placeholder="Email" />
+                </div>
+                <div class="field">
+                  <label for="clientVehicle">Véhicule</label>
+                  <input id="clientVehicle" type="text" placeholder="Marque / modèle / motorisation" />
+                </div>
+                <div class="field">
+                  <label for="clientPlate">Immatriculation</label>
+                  <input id="clientPlate" type="text" placeholder="Plaque" />
+                </div>
+                <div class="field">
+                  <label for="clientVin">VIN</label>
+                  <input id="clientVin" type="text" placeholder="VIN" />
+                </div>
+                <div class="field">
+                  <label for="clientEngine">Code moteur</label>
+                  <input id="clientEngine" type="text" placeholder="Code moteur" />
+                </div>
+                <div class="field full">
+                  <label for="clientOe">Référence OE / demande</label>
+                  <input id="clientOe" type="text" placeholder="Réf OE ou besoin client" />
+                </div>
+                <div class="field full">
+                  <label for="clientNotes">Notes</label>
+                  <textarea id="clientNotes" placeholder="Données de dossier, remarques, contrôle renforcé, etc."></textarea>
+                </div>
+              </div>
+
+              <div class="section-actions">
+                <button class="btn success" type="submit">Enregistrer la fiche client</button>
+                <button class="btn secondary" type="button" id="printClientBtn">Imprimer la fiche client</button>
+                <button class="btn secondary" type="button" id="exportClientBtn">Exporter JSON</button>
+                <button class="btn secondary" type="button" id="resetFormBtn">Réinitialiser</button>
+              </div>
+            </form>
+
+            <div class="split" style="margin-top:16px">
+              <div class="card" style="box-shadow:none; background:rgba(248,250,252,.9)">
+                <div class="card-head" style="padding-top:14px">
+                  <div>
+                    <h4 class="card-title" style="font-size:16px">Fichiers locaux / dossier réel</h4>
+                    <p class="card-subtitle">Importés depuis l’iPad ou le navigateur. Aucun upload obligatoire.</p>
+                  </div>
+                </div>
+                <div class="card-body" style="padding-top:8px">
+                  <div class="row space">
+                    <div class="mini">Dossier courant attaché au client sélectionné.</div>
+                    <button class="btn secondary" id="clearFilesBtn" type="button">Vider</button>
+                  </div>
+                  <div id="filesList" class="files"></div>
+                </div>
+              </div>
+
+              <div class="card" style="box-shadow:none; background:rgba(248,250,252,.9)">
+                <div class="card-head" style="padding-top:14px">
+                  <div>
+                    <h4 class="card-title" style="font-size:16px">Branchement futur</h4>
+                    <p class="card-subtitle">Prépare l’accès à des vérifications en ligne plus tard.</p>
+                  </div>
+                </div>
+                <div class="card-body" style="padding-top:8px">
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label for="apiBase">API base future</label>
+                      <input id="apiBase" type="text" placeholder="https://votre-backend.tld/api" />
+                    </div>
+                    <div class="inline">
+                      <button class="btn secondary" id="saveConfigBtn" type="button">Enregistrer</button>
+                      <span class="badge info">Mode démo local si vide</span>
+                    </div>
+                  </div>
+                  <div class="footer-note">
+                    Endpoints prévus :<br/>
+                    <code>/verify/vehicle?vin=...</code><br/>
+                    <code>/verify/oe?vin=...&amp;oe=...</code><br/>
+                    <code>/verify/equivalents?oe=...</code><br/>
+                    <code>/verify/stock?oe=...</code><br/>
+                    <code>/verify/delay?oe=...</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Assistant local</h3>
+              <p class="card-subtitle">Réponses rapides, guidage, synthèse. Rien n’est envoyé ailleurs sans branchement explicite.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="messagesList" class="messages"></div>
+            <div class="assistant-compose">
+              <textarea id="assistantInput" placeholder="Écris une demande : imprimer, vérifier, ouvrir un dossier, exporter, etc."></textarea>
+              <button class="btn" id="assistantSendBtn" type="button">Envoyer</button>
+            </div>
+            <div class="section-actions">
+              <button class="btn secondary" type="button" data-quick="Imprimer la fiche client">Imprimer</button>
+              <button class="btn secondary" type="button" data-quick="Lancer les vérifications multiples">Vérifications</button>
+              <button class="btn secondary" type="button" data-quick="Préparer un dossier client propre">Synthèse</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Historique</h3>
+              <p class="card-subtitle">Actions enregistrées localement : création, import, impression, vérification, export.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="historyList" class="history"></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Fiche active</h3>
+              <p class="card-subtitle">Le dossier sélectionné s’affiche ici pour contrôle, impression et consultation rapide.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="activeBadgeRow" class="row" style="margin-bottom:12px">
+              <span class="badge info" id="activeState">Aucune fiche ouverte</span>
+              <span class="badge" id="syncState">Sauvegarde locale</span>
+            </div>
+
+            <div id="activeClientPanel" class="card" style="box-shadow:none; background:rgba(248,250,252,.92)">
+              <div class="card-body">
+                <div class="row space">
+                  <div>
+                    <div style="font-size:20px; font-weight:900" id="activeName">Aucune fiche</div>
+                    <div class="mini" id="activeSubtitle">Sélectionne une fiche client ou enregistre un nouveau dossier.</div>
+                  </div>
+                  <div class="inline">
+                    <button class="btn secondary" id="verifyBtn" type="button">Vérifications multiples</button>
+                    <button class="btn secondary" id="openDemoBtn" type="button">Démo Scénic III</button>
+                  </div>
+                </div>
+
+                <div class="client-meta" style="margin-top:14px">
+                  <div class="kv"><div class="k">Client</div><div class="v" id="viewClient">—</div></div>
+                  <div class="kv"><div class="k">Véhicule</div><div class="v" id="viewVehicle">—</div></div>
+                  <div class="kv"><div class="k">VIN</div><div class="v" id="viewVin">—</div></div>
+                  <div class="kv"><div class="k">Immatriculation</div><div class="v" id="viewPlate">—</div></div>
+                  <div class="kv"><div class="k">Code moteur</div><div class="v" id="viewEngine">—</div></div>
+                  <div class="kv"><div class="k">Réf / demande</div><div class="v" id="viewOe">—</div></div>
+                  <div class="kv" style="grid-column:1 / -1"><div class="k">Notes</div><div class="v" id="viewNotes">—</div></div>
+                </div>
+
+                <div class="section-actions">
+                  <button class="btn success" id="saveFromViewBtn" type="button">Enregistrer</button>
+                  <button class="btn secondary" id="printFromViewBtn" type="button">Imprimer la fiche client</button>
+                  <button class="btn danger" id="deleteClientBtn" type="button">Supprimer</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <div>
+              <h3 class="card-title">Clients enregistrés</h3>
+              <p class="card-subtitle">Recherche rapide, ouverture, suppression, export et impression.</p>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="searchbar" style="margin-bottom:12px">
+              <input id="searchClients" type="search" placeholder="Rechercher un client, véhicule, VIN, plaque..." />
+            </div>
+            <div class="section-actions" style="margin-top:0">
+              <button class="btn secondary" id="exportAllBtn" type="button">Exporter tout JSON</button>
+              <button class="btn secondary" id="importBtn" type="button">Importer JSON</button>
+              <button class="btn secondary" id="loadFolderAsClientBtn" type="button">Charger un dossier réel &gt;</button>
+            </div>
+            <div id="clientsList" class="list" style="margin-top:12px"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <section id="printArea">
+    <h1>PIÈCE-SÛRE AI — Fiche client</h1>
+    <p id="printDate" style="margin:4px 0 14px; color:#444">—</p>
+
+    <div class="sheet">
+      <h2 id="pName">—</h2>
+      <p id="pSubtitle" style="margin:4px 0 0; color:#555">—</p>
+      <div class="pgrid" style="margin-top:14px">
+        <div class="pbox"><div class="k">Client</div><div class="v" id="pClient">—</div></div>
+        <div class="pbox"><div class="k">Société / atelier</div><div class="v" id="pCompany">—</div></div>
+        <div class="pbox"><div class="k">Véhicule</div><div class="v" id="pVehicle">—</div></div>
+        <div class="pbox"><div class="k">Immatriculation</div><div class="v" id="pPlate">—</div></div>
+        <div class="pbox"><div class="k">VIN</div><div class="v" id="pVin">—</div></div>
+        <div class="pbox"><div class="k">Code moteur</div><div class="v" id="pEngine">—</div></div>
+        <div class="pbox" style="grid-column:1 / -1"><div class="k">Réf / demande</div><div class="v" id="pOe">—</div></div>
+        <div class="pbox" style="grid-column:1 / -1"><div class="k">Notes</div><div class="v" id="pNotes">—</div></div>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <h3>Vérifications multiples</h3>
+      <div id="pChecks">—</div>
+    </div>
+
+    <div class="sheet">
+      <h3>Fichiers locaux associés</h3>
+      <ul id="pFiles"><li>—</li></ul>
+    </div>
+  </section>
+
+  <div id="multiModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div class="row space">
+          <div>
+            <h3 class="card-title">Vérifications multiples</h3>
+            <p class="card-subtitle">Prévu pour des API plus tard. En attendant, le mode local fournit une démonstration claire et traçable.</p>
+          </div>
+          <div class="inline">
+            <button class="btn secondary" id="closeModalBtn" type="button">Fermer</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="field">
+            <label for="checkVin">VIN</label>
+            <input id="checkVin" type="text" placeholder="VIN" />
+          </div>
+          <div class="field">
+            <label for="checkOe">Référence OE</label>
+            <input id="checkOe" type="text" placeholder="Référence OE" />
+          </div>
+          <div class="field full">
+            <label for="checkVehicle">Véhicule</label>
+            <input id="checkVehicle" type="text" placeholder="Véhicule / motorisation" />
+          </div>
+        </div>
+
+        <div class="section-actions">
+          <button class="btn" id="runChecksBtn" type="button">Lancer les vérifications</button>
+          <button class="btn secondary" id="useDemoChecksBtn" type="button">Mode démo local</button>
+          <button class="btn secondary" id="copyChecksBtn" type="button">Préparer pour impression</button>
+        </div>
+
+        <div class="notice" style="margin-top:14px">
+          Si une API est renseignée dans “Branchement futur”, le fichier essaiera ces checks :
+          véhicule, OE, équivalents, stock, délai. Sinon, il reste en démo locale.
+        </div>
+
+        <div id="checkResults" class="check-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <input id="folderInput" type="file" multiple webkitdirectory directory hidden />
+  <input id="importInput" type="file" accept="application/json,.json" hidden />
+
+  <script>
+    const LS = {
+      clients: 'psa_clients_v1',
+      history: 'psa_history_v1',
+      messages: 'psa_messages_v1',
+      config: 'psa_config_v1',
+      auth: 'psa_auth_v1'
+    };
+
+    const demoLogin = { user: 'atelier', pass: '1234' };
+
+    const emptyState = () => ({
+      user: null,
+      clients: [],
+      history: [],
+      messages: [],
+      config: { apiBase: '', tabletMode: false },
+      activeClientId: '',
+      importedFiles: [],
+      lastChecks: null
+    });
+
+    let state = emptyState();
+
+    const $ = (id) => document.getElementById(id);
+
+    function uid(){
+      return 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    }
+
+    function loadJSON(key, fallback){
+      try{
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      }catch(e){
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, value){
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function esc(s){
+      return String(s ?? '').replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+      }[m]));
+    }
+
+    function fmtDate(iso){
+      try{
+        return new Intl.DateTimeFormat('fr-FR', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        }).format(new Date(iso));
+      }catch(e){
+        return iso || '';
+      }
+    }
+
+    function fmtBytes(bytes){
+      if (!Number.isFinite(bytes)) return '';
+      const units = ['o','Ko','Mo','Go'];
+      let i = 0, n = bytes;
+      while (n >= 1024 && i < units.length - 1){ n /= 1024; i++; }
+      return `${n.toFixed(n < 10 && i > 0 ? 1 : 0)} ${units[i]}`;
+    }
+
+    function setStatus(){
+      const online = navigator.onLine;
+      $('netBadge').innerHTML = online ? '● <small>Statut</small> <strong>En ligne</strong>' : '● <small>Statut</small> <strong>Hors ligne</strong>';
+      $('modeBadge').innerHTML = state.config.apiBase ? '● <small>Mode</small> <strong>Hybride</strong>' : '● <small>Mode</small> <strong>Local</strong>';
+      $('metricMode').textContent = state.config.apiBase ? 'Hybride' : 'Local';
+      $('syncState').textContent = state.config.apiBase ? 'Sauvegarde locale + API future' : 'Sauvegarde locale';
+    }
+
+    function addHistory(type, label, detail=''){
+      state.history.unshift({
+        id: uid(),
+        type,
+        label,
+        detail,
+        at: new Date().toISOString()
+      });
+      state.history = state.history.slice(0, 40);
+      saveJSON(LS.history, state.history);
+      renderHistory();
+      updateMetrics();
+    }
+
+    function addMessage(role, text){
+      state.messages.push({
+        id: uid(),
+        role,
+        text,
+        at: new Date().toISOString()
+      });
+      state.messages = state.messages.slice(-80);
+      saveJSON(LS.messages, state.messages);
+      renderMessages();
+    }
+
+    function getActiveClient(){
+      return state.clients.find(c => c.id === state.activeClientId) || null;
+    }
+
+    function clientFromForm(){
+      const id = $('clientId').value || uid();
+      const client = {
+        id,
+        name: $('clientName').value.trim(),
+        company: $('clientCompany').value.trim(),
+        phone: $('clientPhone').value.trim(),
+        email: $('clientEmail').value.trim(),
+        vehicle: $('clientVehicle').value.trim(),
+        plate: $('clientPlate').value.trim(),
+        vin: $('clientVin').value.trim(),
+        engine: $('clientEngine').value.trim(),
+        oe: $('clientOe').value.trim(),
+        notes: $('clientNotes').value.trim(),
+        files: state.importedFiles || [],
+        createdAt: null,
+        updatedAt: new Date().toISOString()
+      };
+      return client;
+    }
+
+    function fillForm(client){
+      $('clientId').value = client?.id || '';
+      $('clientName').value = client?.name || '';
+      $('clientCompany').value = client?.company || '';
+      $('clientPhone').value = client?.phone || '';
+      $('clientEmail').value = client?.email || '';
+      $('clientVehicle').value = client?.vehicle || '';
+      $('clientPlate').value = client?.plate || '';
+      $('clientVin').value = client?.vin || '';
+      $('clientEngine').value = client?.engine || '';
+      $('clientOe').value = client?.oe || '';
+      $('clientNotes').value = client?.notes || '';
+      state.importedFiles = Array.isArray(client?.files) ? client.files : [];
+      renderFiles();
+      renderActive();
+    }
+
+    function clearForm(){
+      $('clientId').value = '';
+      $('clientName').value = '';
+      $('clientCompany').value = '';
+      $('clientPhone').value = '';
+      $('clientEmail').value = '';
+      $('clientVehicle').value = '';
+      $('clientPlate').value = '';
+      $('clientVin').value = '';
+      $('clientEngine').value = '';
+      $('clientOe').value = '';
+      $('clientNotes').value = '';
+      state.importedFiles = [];
+      renderFiles();
+      state.activeClientId = '';
+      renderActive();
+      addHistory('new', 'Nouveau dossier', 'Formulaire réinitialisé.');
+    }
+
+    function saveClient(client){
+      const idx = state.clients.findIndex(c => c.id === client.id);
+      if (idx >= 0){
+        client.createdAt = state.clients[idx].createdAt || client.updatedAt;
+        state.clients[idx] = client;
+      } else {
+        client.createdAt = client.updatedAt;
+        state.clients.unshift(client);
+      }
+      state.activeClientId = client.id;
+      saveJSON(LS.clients, state.clients);
+      addHistory('save', 'Fiche client enregistrée', client.name || 'Client sans nom');
+      renderClients();
+      renderActive();
+      updateMetrics();
+    }
+
+    function deleteClient(id){
+      const client = state.clients.find(c => c.id === id);
+      if (!client) return;
+      if (!confirm(`Supprimer la fiche "${client.name || 'client'}" ?`)) return;
+      state.clients = state.clients.filter(c => c.id !== id);
+      if (state.activeClientId === id) state.activeClientId = '';
+      saveJSON(LS.clients, state.clients);
+      addHistory('delete', 'Fiche client supprimée', client.name || 'Client sans nom');
+      renderClients();
+      renderActive();
+      updateMetrics();
+    }
+
+    function openClient(id){
+      const client = state.clients.find(c => c.id === id);
+      if (!client) return;
+      state.activeClientId = id;
+      fillForm(client);
+      addHistory('open', 'Fiche client ouverte', client.name || 'Client sans nom');
+      renderClients();
+      renderActive();
+    }
+
+    function renderClients(){
+      const box = $('clientsList');
+      const q = $('searchClients').value.trim().toLowerCase();
+      const items = state.clients
+        .filter(c => {
+          const hay = [
+            c.name, c.company, c.phone, c.email, c.vehicle, c.plate, c.vin, c.engine, c.oe, c.notes
+          ].join(' ').toLowerCase();
+          return !q || hay.includes(q);
+        })
+        .sort((a,b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+
+      if (!items.length){
+        box.innerHTML = `<div class="notice">Aucune fiche enregistrée pour l’instant.</div>`;
+        return;
+      }
+
+      box.innerHTML = items.map(c => {
+        const active = c.id === state.activeClientId ? 'active' : '';
+        const subtitle = [c.vehicle, c.vin || c.plate ? `${c.vin || ''} ${c.plate || ''}`.trim() : '', c.oe].filter(Boolean).join(' • ');
+        return `
+          <button type="button" class="client-item ${active}" data-open="${esc(c.id)}">
+            <div class="row space">
+              <div class="t">${esc(c.name || 'Client sans nom')}</div>
+              <span class="badge ${active ? 'info' : ''}">${esc(c.files?.length || 0)} fichier(s)</span>
+            </div>
+            <div class="s">${esc(subtitle || '—')}</div>
+            <div class="b">
+              <span class="badge">${esc(c.company || 'Société non renseignée')}</span>
+              <span class="badge">${esc(fmtDate(c.updatedAt || c.createdAt || new Date().toISOString()))}</span>
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      box.querySelectorAll('[data-open]').forEach(btn => {
+        btn.addEventListener('click', () => openClient(btn.dataset.open));
+      });
+    }
+
+    function renderActive(){
+      const c = getActiveClient() || clientFromForm();
+      const has = !!(state.activeClientId && getActiveClient());
+      $('activeState').textContent = has ? 'Fiche active' : 'Brouillon';
+      $('activeName').textContent = c.name || 'Aucune fiche';
+      $('activeSubtitle').textContent = has ? 'Fiche enregistrée et consultable.' : 'Brouillon prêt à être complété ou enregistré.';
+      $('viewClient').textContent = c.name || '—';
+      $('viewVehicle').textContent = c.vehicle || '—';
+      $('viewVin').textContent = c.vin || '—';
+      $('viewPlate').textContent = c.plate || '—';
+      $('viewEngine').textContent = c.engine || '—';
+      $('viewOe').textContent = c.oe || '—';
+      $('viewNotes').textContent = c.notes || '—';
+
+      $('checkVin').value = c.vin || $('checkVin').value;
+      $('checkOe').value = c.oe || $('checkOe').value;
+      $('checkVehicle').value = c.vehicle || $('checkVehicle').value;
+
+      renderPrintArea(c);
+      updateMetrics();
+    }
+
+    function renderFiles(){
+      const box = $('filesList');
+      const files = state.importedFiles || [];
+      if (!files.length){
+        box.innerHTML = `<div class="notice ok">Aucun fichier importé. Utilise “Charger un dossier réel &gt;”.</div>`;
+        return;
+      }
+      box.innerHTML = files.slice(0, 25).map(f => `
+        <div class="file-item">
+          <div>
+            <div class="name">${esc(f.path || f.name)}</div>
+            <div class="meta">${esc(f.type || 'type inconnu')} • ${esc(fmtBytes(f.size || 0))}${f.preview ? ' • aperçu disponible' : ''}</div>
+          </div>
+          <div class="tag">Local</div>
+        </div>
+      `).join('');
+    }
+
+    function renderMessages(){
+      const box = $('messagesList');
+      if (!state.messages.length){
+        box.innerHTML = `<div class="notice">Aucun message pour le moment.</div>`;
+        return;
+      }
+      box.innerHTML = state.messages.slice(-20).map(m => `
+        <div class="msg ${esc(m.role)}">
+          <div class="role">${m.role === 'user' ? 'Vous' : 'Assistant'}</div>
+          <div class="txt">${esc(m.text)}</div>
+          <div class="s">${esc(fmtDate(m.at))}</div>
+        </div>
+      `).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function renderHistory(){
+      const box = $('historyList');
+      if (!state.history.length){
+        box.innerHTML = `<div class="notice">Aucun historique pour l’instant.</div>`;
+        return;
+      }
+      box.innerHTML = state.history.slice(0, 20).map(h => `
+        <div class="history-item">
+          <div class="head">
+            <strong>${esc(h.label)}</strong>
+            <div class="time">${esc(fmtDate(h.at))}</div>
+          </div>
+          <div class="s">${esc(h.detail || '—')} • ${esc(h.type)}</div>
+        </div>
+      `).join('');
+    }
+
+    function updateMetrics(){
+      $('metricClients').textContent = String(state.clients.length);
+      $('metricHistory').textContent = String(state.history.length);
+      $('metricFiles').textContent = String((state.importedFiles || []).length);
+    }
+
+    function renderPrintArea(client){
+      $('printDate').textContent = 'Généré le ' + fmtDate(new Date().toISOString());
+      $('pName').textContent = client?.name || 'Aucune fiche';
+      $('pSubtitle').textContent = client?.vehicle || '—';
+      $('pClient').textContent = client?.name || '—';
+      $('pCompany').textContent = client?.company || '—';
+      $('pVehicle').textContent = client?.vehicle || '—';
+      $('pPlate').textContent = client?.plate || '—';
+      $('pVin').textContent = client?.vin || '—';
+      $('pEngine').textContent = client?.engine || '—';
+      $('pOe').textContent = client?.oe || '—';
+      $('pNotes').textContent = client?.notes || '—';
+      const checks = state.lastChecks || buildDemoChecks(client);
+      $('pChecks').innerHTML = `
+        <ul>
+          <li><strong>Véhicule :</strong> ${esc(checks.vehicle || '—')}</li>
+          <li><strong>Référence OE :</strong> ${esc(checks.oe || '—')}</li>
+          <li><strong>Équivalents :</strong> ${esc(checks.equivalents || '—')}</li>
+          <li><strong>Stock :</strong> ${esc(checks.stock || '—')}</li>
+          <li><strong>Délai :</strong> ${esc(checks.delay || '—')}</li>
+        </ul>
+      `;
+      const files = (client?.files || []).slice(0, 20);
+      $('pFiles').innerHTML = files.length
+        ? files.map(f => `<li>${esc(f.path || f.name)} — ${esc(fmtBytes(f.size || 0))}</li>`).join('')
+        : '<li>Aucun fichier associé</li>';
+    }
+
+    function buildDemoChecks(client){
+      const v = client?.vehicle || 'Renault Scénic III | M9R 615';
+      const oe = client?.oe || 'Renault 410605961R';
+      return {
+        vehicle: v,
+        oe: oe,
+        equivalents: 'Bosch 0 986 494 019 • TRW GDB1721',
+        stock: '4 pièces',
+        delay: '24 h'
+      };
+    }
+
+    function getCheckInputValues(){
+      return {
+        vin: $('checkVin').value.trim(),
+        oe: $('checkOe').value.trim(),
+        vehicle: $('checkVehicle').value.trim()
+      };
+    }
+
+    function renderCheckResults(data){
+      const box = $('checkResults');
+      const rows = [
+        { k:'Véhicule', v:data.vehicle || '—', d:data.vehicleDetail || 'Contrôle de cohérence véhicule / motorisation.', state:data.vehicleState || 'info', s:data.vehicleStateLabel || 'En attente' },
+        { k:'OE', v:data.oe || '—', d:data.oeDetail || 'Référence OE demandée ou sélectionnée.', state:data.oeState || 'info', s:data.oeStateLabel || 'En attente' },
+        { k:'Équivalents', v:data.equivalents || '—', d:data.equivalentsDetail || 'Proposition de correspondances à valider.', state:data.equivalentsState || 'info', s:data.equivalentsStateLabel || 'En attente' },
+        { k:'Stock', v:data.stock || '—', d:data.stockDetail || 'Disponibilité locale ou API future.', state:data.stockState || 'info', s:data.stockStateLabel || 'En attente' },
+        { k:'Délai', v:data.delay || '—', d:data.delayDetail || 'Délai indicatif ou API future.', state:data.delayState || 'info', s:data.delayStateLabel || 'En attente' }
+      ];
+      box.innerHTML = rows.map(r => `
+        <div class="check ${esc(r.state)}">
+          <div class="k">${esc(r.k)}</div>
+          <div class="v">${esc(r.v)}</div>
+          <div class="d">${esc(r.d)}</div>
+          <div class="state">${esc(r.s)}</div>
+        </div>
+      `).join('');
+      state.lastChecks = data;
+      renderPrintArea(getActiveClient() || clientFromForm());
+    }
+
+    async function fetchJSON(url, timeout = 3500){
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), timeout);
+      try{
+        const res = await fetch(url, { signal: ctrl.signal, headers: { 'Accept':'application/json' } });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return await res.json();
+      } finally {
+        clearTimeout(t);
+      }
+    }
+
+    async function runChecks(mode = 'auto'){
+      const input = getCheckInputValues();
+      const apiBase = (state.config.apiBase || '').replace(/\/$/, '');
+      let data = null;
+
+      if (mode !== 'demo' && apiBase){
+        try{
+          const [vehicle, oe, equivalents, stock, delay] = await Promise.all([
+            fetchJSON(`${apiBase}/verify/vehicle?vin=${encodeURIComponent(input.vin || '')}`),
+            fetchJSON(`${apiBase}/verify/oe?vin=${encodeURIComponent(input.vin || '')}&oe=${encodeURIComponent(input.oe || '')}`),
+            fetchJSON(`${apiBase}/verify/equivalents?oe=${encodeURIComponent(input.oe || '')}`),
+            fetchJSON(`${apiBase}/verify/stock?oe=${encodeURIComponent(input.oe || '')}`),
+            fetchJSON(`${apiBase}/verify/delay?oe=${encodeURIComponent(input.oe || '')}`)
+          ]);
+
+          data = {
+            vehicle: vehicle.result || vehicle.label || 'Véhicule vérifié',
+            oe: oe.result || oe.label || input.oe || 'OE vérifiée',
+            equivalents: equivalents.result || equivalents.label || 'Correspondances trouvées',
+            stock: stock.result || stock.label || 'Stock disponible',
+            delay: delay.result || delay.label || 'Délai connu',
+            vehicleState: 'ok',
+            oeState: 'ok',
+            equivalentsState: 'ok',
+            stockState: 'ok',
+            delayState: 'ok',
+            vehicleStateLabel: 'API branchée',
+            oeStateLabel: 'API branchée',
+            equivalentsStateLabel: 'API branchée',
+            stockStateLabel: 'API branchée',
+            delayStateLabel: 'API branchée',
+            vehicleDetail: 'Résultat récupéré depuis l’API configurée.',
+            oeDetail: 'Résultat récupéré depuis l’API configurée.',
+            equivalentsDetail: 'Résultat récupéré depuis l’API configurée.',
+            stockDetail: 'Résultat récupéré depuis l’API configurée.',
+            delayDetail: 'Résultat récupéré depuis l’API configurée.'
+          };
+        }catch(err){
+          data = null;
+        }
+      }
+
+      if (!data || mode === 'demo'){
+        data = {
+          vehicle: input.vehicle || 'Renault Scénic III | M9R 615',
+          oe: input.oe || 'Renault 410605961R',
+          equivalents: 'Bosch 0 986 494 019 • TRW GDB1721',
+          stock: '4 pièces',
+          delay: '24 h',
+          vehicleState: 'ok',
+          oeState: 'ok',
+          equivalentsState: 'ok',
+          stockState: 'warn',
+          delayState: 'info',
+          vehicleStateLabel: 'Mode local',
+          oeStateLabel: 'Mode local',
+          equivalentsStateLabel: 'Mode local',
+          stockStateLabel: 'Démo locale',
+          delayStateLabel: 'Démo locale',
+          vehicleDetail: input.vin ? `VIN saisi : ${input.vin}` : 'Donnée locale de démonstration.',
+          oeDetail: 'Référence locale de démonstration.',
+          equivalentsDetail: 'Démonstration locale de correspondances.',
+          stockDetail: 'Donnée locale. À confirmer via catalogue / API.',
+          delayDetail: 'Donnée locale. À confirmer via catalogue / API.'
+        };
+      }
+
+      renderCheckResults(data);
+      addHistory('check', 'Vérifications multiples', `${data.vehicle} • ${data.oe}`);
+      addMessage('assistant', `Vérifications préparées : véhicule, OE, équivalents, stock et délai. Tu peux maintenant imprimer la fiche ou enregistrer le dossier.`);
+      $('multiModal').classList.add('open');
+      $('multiModal').setAttribute('aria-hidden', 'false');
+    }
+
+    function assistantReply(text){
+      const t = text.toLowerCase();
+      if (t.includes('imprimer')) return 'Je prépare la fiche client. Appuie sur “Imprimer la fiche client”.';
+      if (t.includes('vérif') || t.includes('verification') || t.includes('contrôle')) return 'Ouvre “Vérifications multiples” pour lancer le contrôle local ou branché à une API plus tard.';
+      if (t.includes('export')) return 'Je peux exporter tous les dossiers en JSON. Utilise “Exporter JSON”.';
+      if (t.includes('import') || t.includes('dossier')) return 'Tu peux charger un dossier réel avec “Charger un dossier réel >”.';
+      if (t.includes('vin')) return 'Le VIN peut être saisi dans la fiche client et repris par le module de vérification.';
+      if (t.includes('pièce') || t.includes('reference') || t.includes('référence')) return 'Je peux structurer le dossier, mais une correspondance réelle doit être confirmée par une source branchée.';
+      return 'Message reçu. Je peux t’aider à organiser le dossier, préparer l’impression ou lancer les vérifications multiples.';
+    }
+
+    function sendAssistant(){
+      const input = $('assistantInput');
+      const txt = input.value.trim();
+      if (!txt) return;
+      addMessage('user', txt);
+      input.value = '';
+      setTimeout(() => {
+        addMessage('assistant', assistantReply(txt));
+      }, 180);
+      addHistory('message', 'Message assistant', txt);
+    }
+
+    function exportJSON(data, filename){
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 0);
+    }
+
+    function exportAll(){
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        version: '1.0',
+        clients: state.clients,
+        history: state.history,
+        messages: state.messages,
+        config: state.config,
+        activeClientId: state.activeClientId
+      };
+      exportJSON(payload, `piece-sure-ai-export-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`);
+      addHistory('export', 'Export JSON', 'Export complet des données.');
+    }
+
+    function exportCurrentClient(){
+      const c = getActiveClient() || clientFromForm();
+      const payload = { exportedAt: new Date().toISOString(), client: c, lastChecks: state.lastChecks };
+      exportJSON(payload, `client-${(c.name || 'fiche').replace(/[^\w-]+/g,'_')}.json`);
+      addHistory('export', 'Export client JSON', c.name || 'Client sans nom');
+    }
+
+    async function importJSONFile(file){
+      try{
+        const raw = await file.text();
+        const data = JSON.parse(raw);
+
+        if (Array.isArray(data.clients)){
+          const map = new Map(state.clients.map(c => [c.id, c]));
+          for (const c of data.clients) map.set(c.id || uid(), c);
+          state.clients = Array.from(map.values());
+          saveJSON(LS.clients, state.clients);
+        }
+        if (Array.isArray(data.history)){
+          state.history = [...data.history, ...state.history].slice(0, 100);
+          saveJSON(LS.history, state.history);
+        }
+        if (Array.isArray(data.messages)){
+          state.messages = [...state.messages, ...data.messages].slice(-100);
+          saveJSON(LS.messages, state.messages);
+        }
+        if (data.config){
+          state.config = { ...state.config, ...data.config };
+          saveJSON(LS.config, state.config);
+        }
+        if (data.client && !Array.isArray(data.clients)){
+          const c = data.client;
+          c.id = c.id || uid();
+          state.clients.unshift(c);
+          saveJSON(LS.clients, state.clients);
+        }
+        if (data.activeClientId) state.activeClientId = data.activeClientId;
+
+        renderClients();
+        renderHistory();
+        renderMessages();
+        applyConfig();
+        if (state.activeClientId) {
+          const client = getActiveClient();
+          if (client) fillForm(client);
+        }
+        addHistory('import', 'Import JSON', file.name);
+      }catch(err){
+        alert('Import impossible : fichier JSON invalide.');
+      }
+    }
+
+    async function importFolder(files){
+      const arr = Array.from(files || []);
+      if (!arr.length) return;
+      const previews = await Promise.all(arr.slice(0, 120).map(async (file) => {
+        let preview = '';
+        const isText = /^text\/|application\/json|application\/xml|application\/javascript/.test(file.type) || /\.(txt|csv|json|xml|js|html|md|log|ini|cfg|yaml|yml)$/i.test(file.name);
+        if (isText && file.size < 25000){
+          try{
+            preview = (await file.text()).slice(0, 400);
+          }catch(e){}
+        }
+        return {
+          name: file.name,
+          path: file.webkitRelativePath || file.name,
+          size: file.size,
+          type: file.type || '',
+          preview
+        };
+      }));
+      state.importedFiles = previews;
+      renderFiles();
+      renderActive();
+      addHistory('import', 'Dossier réel chargé', `${previews.length} fichier(s) détecté(s)`);
+      addMessage('assistant', `Dossier réel chargé : ${previews.length} fichier(s). Tu peux maintenant l’attacher à la fiche active en enregistrant.`);
+    }
+
+    function applyConfig(){
+      $('apiBase').value = state.config.apiBase || '';
+      saveJSON(LS.config, state.config);
+      setStatus();
+    }
+
+    function loadDemoScenic3(){
+      $('clientId').value = '';
+      $('clientName').value = 'Client démo';
+      $('clientCompany').value = 'Atelier local';
+      $('clientPhone').value = '';
+      $('clientEmail').value = '';
+      $('clientVehicle').value = 'Renault Scénic III 1.6 dCi 130';
+      $('clientPlate').value = 'CZ-505-AV';
+      $('clientVin').value = 'VF1JZ0Y0349637414';
+      $('clientEngine').value = 'M9R 615';
+      $('clientOe').value = '410605961R / 402060010R';
+      $('clientNotes').value = 'Données fournies par le dossier : D.2 JZ0Y03 • P.1 1995 • 1ère immatriculation 27/09/2013 • disque avant 296 mm • pas de capteur.';
+      state.importedFiles = [];
+      renderFiles();
+      renderActive();
+      addHistory('demo', 'Démo Scénic III chargée', 'Préremplissage local.');
+      addMessage('assistant', 'Démo Scénic III chargée. Tu peux l’enregistrer, vérifier ou imprimer la fiche.');
+    }
+
+    function saveCurrentClient(){
+      const c = clientFromForm();
+      if (!c.name && !c.vehicle && !c.vin && !c.plate){
+        alert('Renseigne au moins un nom, un véhicule, un VIN ou une immatriculation.');
+        return;
+      }
+      saveClient(c);
+      state.activeClientId = c.id;
+      renderClients();
+      renderActive();
+    }
+
+    function updateFromActiveOrDraft(){
+      const active = getActiveClient();
+      if (active) fillForm(active);
+      else renderActive();
+    }
+
+    function prepareChecksFromActive(){
+      const active = getActiveClient();
+      if (active){
+        $('checkVin').value = active.vin || $('checkVin').value;
+        $('checkOe').value = active.oe || $('checkOe').value;
+        $('checkVehicle').value = active.vehicle || $('checkVehicle').value;
+      }
+      $('multiModal').classList.add('open');
+      $('multiModal').setAttribute('aria-hidden', 'false');
+    }
+
+    function closeModal(){
+      $('multiModal').classList.remove('open');
+      $('multiModal').setAttribute('aria-hidden', 'true');
+    }
+
+    function printClient(){
+      renderPrintArea(getActiveClient() || clientFromForm());
+      setTimeout(() => window.print(), 50);
+      addHistory('print', 'Impression fiche client', (getActiveClient() || clientFromForm()).name || 'Client sans nom');
+    }
+
+    function toggleTabletMode(){
+      state.config.tabletMode = !state.config.tabletMode;
+      document.body.classList.toggle('tablet-mode', state.config.tabletMode);
+      if (state.config.tabletMode && document.documentElement.requestFullscreen){
+        document.documentElement.requestFullscreen().catch(()=>{});
+      }
+      saveJSON(LS.config, state.config);
+      addHistory('view', 'Mode tablette', state.config.tabletMode ? 'Activé' : 'Désactivé');
+      alert(state.config.tabletMode ? 'Mode tablette activé.' : 'Mode tablette désactivé.');
+      setStatus();
+    }
+
+    function loadSaved(){
+      state.clients = loadJSON(LS.clients, []);
+      state.history = loadJSON(LS.history, []);
+      state.messages = loadJSON(LS.messages, []);
+      state.config = { ...state.config, ...loadJSON(LS.config, {}) };
+      const auth = loadJSON(LS.auth, null);
+      if (auth && auth.user) state.user = auth;
+      if (!state.history.length){
+        state.history = [
+          { id: uid(), type:'init', label:'Application prête', detail:'PIÈCE-SÛRE AI chargé localement.', at: new Date().toISOString() }
+        ];
+      }
+      if (!state.messages.length){
+        state.messages = [
+          { id: uid(), role:'assistant', text:'Bienvenue. Je peux t’aider à préparer une fiche client, charger un dossier réel, lancer les vérifications multiples ou imprimer.', at: new Date().toISOString() }
+        ];
+      }
+      if (state.clients.length && !state.activeClientId) state.activeClientId = state.clients[0].id;
+      if (state.activeClientId){
+        const active = getActiveClient();
+        if (active) fillForm(active);
+      }
+    }
+
+    function setAppVisible(visible){
+      $('loginScreen').classList.toggle('hidden', visible);
+      $('app').classList.toggle('hidden', !visible);
+      if (visible){
+        renderClients();
+        renderHistory();
+        renderMessages();
+        renderActive();
+        updateMetrics();
+        setStatus();
+        applyConfig();
+        addMessage('assistant', `Session ouverte pour ${state.user?.user || 'atelier'}.`);
+      }
+    }
+
+    function login(user, pass){
+      if (user === demoLogin.user && pass === demoLogin.pass){
+        state.user = { user, at: new Date().toISOString() };
+        saveJSON(LS.auth, state.user);
+        setAppVisible(true);
+        return true;
+      }
+      return false;
+    }
+
+    function logout(){
+      if (!confirm('Quitter la session locale ?')) return;
+      localStorage.removeItem(LS.auth);
+      state.user = null;
+      setAppVisible(false);
+    }
+
+    function wireEvents(){
+      $('loginForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const ok = login($('loginUser').value.trim(), $('loginPass').value);
+        if (!ok) alert('Identifiants locaux invalides.');
+      });
+
+      $('demoFillBtn').addEventListener('click', loadDemoScenic3);
+      $('logoutBtn').addEventListener('click', logout);
+
+      $('clientForm').addEventListener('submit', e => {
+        e.preventDefault();
+        saveCurrentClient();
+      });
+
+      $('newClientBtn').addEventListener('click', clearForm);
+      $('resetFormBtn').addEventListener('click', clearForm);
+      $('openFolderBtn').addEventListener('click', () => $('folderInput').click());
+      $('loadFolderAsClientBtn').addEventListener('click', () => $('folderInput').click());
+      $('folderInput').addEventListener('change', e => importFolder(e.target.files));
+
+      $('printClientBtn').addEventListener('click', printClient);
+      $('printBtnTop').addEventListener('click', printClient);
+      $('printFromViewBtn').addEventListener('click', printClient);
+      $('saveFromViewBtn').addEventListener('click', saveCurrentClient);
+      $('deleteClientBtn').addEventListener('click', () => {
+        const active = getActiveClient();
+        if (!active){
+          alert('Aucune fiche active à supprimer.');
+          return;
+        }
+        deleteClient(active.id);
+        clearForm();
+      });
+
+      $('exportAllBtn').addEventListener('click', exportAll);
+      $('exportBtnTop').addEventListener('click', exportAll);
+      $('exportClientBtn').addEventListener('click', exportCurrentClient);
+
+      $('importBtn').addEventListener('click', () => $('importInput').click());
+      $('importInput').addEventListener('change', e => {
+        const file = e.target.files && e.target.files[0];
+        if (file) importJSONFile(file);
+      });
+
+      $('assistantSendBtn').addEventListener('click', sendAssistant);
+      $('assistantInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) sendAssistant();
+      });
+
+      document.querySelectorAll('[data-quick]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('assistantInput').value = btn.dataset.quick;
+          sendAssistant();
+        });
+      });
+
+      $('searchClients').addEventListener('input', renderClients);
+      $('saveConfigBtn').addEventListener('click', () => {
+        state.config.apiBase = $('apiBase').value.trim();
+        saveJSON(LS.config, state.config);
+        setStatus();
+        addHistory('config', 'Branchement futur enregistré', state.config.apiBase || 'Mode local');
+        alert('Configuration enregistrée.');
+      });
+
+      $('clearFilesBtn').addEventListener('click', () => {
+        if (!state.importedFiles.length) return;
+        if (!confirm('Vider la liste des fichiers locaux ?')) return;
+        state.importedFiles = [];
+        renderFiles();
+        renderActive();
+        addHistory('files', 'Fichiers locaux vidés', 'Liste de dossier réel supprimée de la session.');
+      });
+
+      $('tabletBtn').addEventListener('click', toggleTabletMode);
+      $('multiCheckBtn').addEventListener('click', prepareChecksFromActive);
+      $('verifyBtn').addEventListener('click', prepareChecksFromActive);
+      $('openDemoBtn').addEventListener('click', loadDemoScenic3);
+
+      $('closeModalBtn').addEventListener('click', closeModal);
+      $('multiModal').addEventListener('click', e => {
+        if (e.target === $('multiModal')) closeModal();
+      });
+
+      $('runChecksBtn').addEventListener('click', () => runChecks('auto'));
+      $('useDemoChecksBtn').addEventListener('click', () => runChecks('demo'));
+      $('copyChecksBtn').addEventListener('click', () => {
+        renderPrintArea(getActiveClient() || clientFromForm());
+        closeModal();
+        addHistory('check', 'Préparation impression checks', 'Les résultats sont préparés pour l’impression.');
+      });
+
+      window.addEventListener('online', setStatus);
+      window.addEventListener('offline', setStatus);
+    }
+
+    function init(){
+      loadSaved();
+      wireEvents();
+      renderClients();
+      renderHistory();
+      renderMessages();
+      renderActive();
+      updateMetrics();
+      applyConfig();
+      setStatus();
+      if (state.user) setAppVisible(true);
+      else setAppVisible(false);
+    }
+
+    init();
+  </script>
+</body>
+</html>
