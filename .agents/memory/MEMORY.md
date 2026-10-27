@@ -1,0 +1,1 @@
+- [Sécurité des compatibilités](compatibility-safety.md) — Ne jamais déduire une compatibilité ni confondre preuve vérifiée et décision autorisée.

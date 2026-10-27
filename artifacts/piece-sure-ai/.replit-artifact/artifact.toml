@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "PIÈCE-SÛRE AI"
+description = "Application professionnelle en français pour vendeurs de pièces automobiles : recherche véhicule et pièces, vérification sourcée des compatibilités, import de catalogues et historique local, sans résultats automobiles inventés."
+version = "1.0.0"
+id = "artifacts/piece-sure-ai"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20911
+
+[services.development]
+run = "pnpm --filter @workspace/piece-sure-ai run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/piece-sure-ai", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/piece-sure-ai/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20911"
+BASE_PATH = "/"
