@@ -1,3 +1,4 @@
+import { createBackup } from './backup';
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import {
   Archive, ArrowDownToLine, ArrowRight, BadgeCheck, BookOpenCheck, CarFront,
@@ -137,6 +138,24 @@ function App() {
     return () => window.clearTimeout(timer);
   }, [toast]);
   const notify = (message: string) => setToast(message);
+
+  const downloadBackup = async () => {
+    try {
+      const backup = await createBackup();
+      const url = URL.createObjectURL(backup);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `PIECE-SURE-AI-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      notify('Téléchargement demandé. Vérifiez le fichier dans Téléchargements.');
+    } catch (error) {
+      notify('Sauvegarde impossible : ' + (error instanceof Error ? error.message : 'erreur inconnue'));
+    }
+  };
+
   const navigate = (next: View) => { setView(next); setFilter(''); setMobileOpen(false); };
 
   async function addVehicle(form: Vehicle) { await put('vehicles', form); await refresh(); setModal(null); notify('Véhicule ajouté à vos données locales.'); }
@@ -197,7 +216,7 @@ function App() {
         <header className="topbar">
           <div className="mobile-menu"><button className="icon-button" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Ouvrir le menu"><Menu /></button><span className="mobile-brand">PIÈCE-SÛRE AI</span></div>
           <div className="breadcrumb">Poste de vente <ChevronRight size={12} /> {current[0]}</div>
-          <div className="topbar-right"><span className="local-pill"><span className="local-dot" />Données stockées sur cet appareil</span></div>
+          <div className="topbar-right"><button type="button" onClick={downloadBackup}>Sauvegarder mes données</button><span className="local-pill"><span className="local-dot" />Données stockées sur cet appareil</span></div>
         </header>
         {mobileOpen && <div className="mobile-menu-pop">{navItems.map(({ id, label, icon: Icon }) => <button key={id} className={`nav-item ${view === id ? 'active' : ''}`} onClick={() => navigate(id)}><Icon />{label}</button>)}</div>}
         <main className="page-wrap fade-in" key={view}>
