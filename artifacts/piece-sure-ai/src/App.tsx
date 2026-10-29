@@ -13,7 +13,25 @@ type State = 'received' | 'verified';
 type Vehicle = { id: string; registration: string; vin: string; make: string; model: string; engine: string; version: string; source: string; status: State; receivedAt: string };
 type Part = { id: string; designation: string; oe: string; brand: string; reference: string; source: string; status: State; receivedAt: string };
 type Compatibility = { id: string; vehicleId: string; partId: string; source: string; status: State; authorized: boolean; decisionBy: string; decisionAt: string };
-type CatalogDoc = { id: string; filename: string; type: string; origin: string; importedAt: string; size: number; fileBlob?: Blob };
+
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result !== 'string' || !result.includes(',')) {
+        reject(new Error('Conversion Base64 impossible'));
+        return;
+      }
+      resolve(result.split(',')[1]);
+    };
+    reader.onerror = () =>
+      reject(reader.error || new Error('Lecture du fichier impossible'));
+    reader.readAsDataURL(file);
+  });
+}
+
+type CatalogDoc = { id: string; filename: string; type: string; origin: string; importedAt: string; size: number; fileBlob?: Blob; fileBase64?: string };
 type SearchRecord = { id: string; query: string; kind: string; count: number; at: string };
 type Tables = { vehicles: Vehicle[]; parts: Part[]; compatibilities: Compatibility[]; documents: CatalogDoc[]; history: SearchRecord[] };
 type View = 'dashboard' | 'vehicles' | 'parts' | 'compat' | 'import' | 'assistant' | 'history';
@@ -468,11 +486,11 @@ function ImportPage({ db, refresh, notify }: { db: Tables; refresh: () => Promis
           for(const p of parsed.parts)await put('parts',p);
           for(const c of parsed.compatibilities)await put('compatibilities',c);
           importedRows+=parsed.vehicles.length+parsed.parts.length+parsed.compatibilities.length;
-          await put('documents',{id:uid(),filename:file.name,type:ext.toUpperCase(),origin:origin.trim()||file.name,importedAt:now(),size:file.size,fileBlob:file});
+          await put('documents',{id:uid(),filename:file.name,type:ext.toUpperCase(),origin:origin.trim()||file.name,importedAt:now(),size:file.size,fileBase64:await fileToBase64(file)});
           docs++;
           if(importedRows===0) failures.push(`${file.name} : aucune ligne reconnue. Vérifiez record_type/type et les en-têtes.`);
         } else if(['pdf','png','jpg','jpeg','webp','gif'].includes(ext)){
-          await put('documents',{id:uid(),filename:file.name,type:ext.toUpperCase(),origin:origin.trim()||file.name,importedAt:now(),size:file.size,fileBlob:file});
+          await put('documents',{id:uid(),filename:file.name,type:ext.toUpperCase(),origin:origin.trim()||file.name,importedAt:now(),size:file.size,fileBase64:await fileToBase64(file)});
           docs++;
         } else failures.push(`${file.name} : format non pris en charge.`);
       } catch(e){failures.push(`${file.name} : ${e instanceof Error?e.message:'lecture impossible'}`);}
@@ -496,7 +514,19 @@ function ImportPage({ db, refresh, notify }: { db: Tables; refresh: () => Promis
         <div className="callout warning" style={{marginTop:12}}>Les lignes CSV/JSON ajoutent des véhicules, pièces et relations lorsque leur type et leurs champs sont identifiables. Les relations utilisent les identifiants vehicle_id et part_id. Un PDF ou une image est conservé comme document de preuve ; aucune reconnaissance automatique de texte n’est effectuée.</div>
       </div></section>
       <section className="panel"><div className="panel-head"><div><div className="panel-title">Documents de preuve</div><div className="panel-caption">Fichiers stockés localement, sans extraction OCR</div></div><Archive size={16} color="#698b78" /></div>
-        {db.documents.length ? <div className="panel-body file-list">{[...db.documents].sort((a,b)=>b.importedAt.localeCompare(a.importedAt)).map(doc=><div className="file-row" key={doc.id}><div className="file-type">{doc.type}</div><div className="file-details"><strong>{doc.filename}</strong><span>{doc.origin} · {fmtDate(doc.importedAt)} · {Math.max(1,Math.round(doc.size/1024))} Ko</span></div><Status kind="neutral" label="Document local" /><button className="icon-button" aria-label={`Ouvrir ${doc.filename}`} title="Ouvrir le document local" onClick={()=>{if(!doc.fileBlob)return;const url=URL.createObjectURL(doc.fileBlob);window.open(url,'_blank','noopener');window.setTimeout(()=>URL.revokeObjectURL(url),60000);}}><ExternalLink /></button></div>)}</div> : <Empty icon={FileText} title="Aucun document conservé" text="Les PDF et images importés seront disponibles ici comme preuves catalogue." />}
+        {db.documents.length ? <div className="panel-body file-list">{[...db.documents].sort((a,b)=>b.importedAt.localeCompare(a.importedAt)).map(doc=><div className="file-row" key={doc.id}><div className="file-type">{doc.type}</div><div className="file-details"><strong>{doc.filename}</strong><span>{doc.origin} · {fmtDate(doc.importedAt)} · {Math.max(1,Math.round(doc.size/1024))} Ko</span></div><Status kind="neutral" label="Document local" /><button className="icon-button" aria-label={`Ouvrir ${doc.filename}`} title="Ouvrir le document local" onClick={()=>{if(!doc.fileBlob && !doc.fileBase64)return;
+const blob = doc.fileBase64
+  ? new Blob(
+      [Uint8Array.from(atob(doc.fileBase64), c => c.charCodeAt(0))],
+      {type: doc.type === 'PDF' ? 'application/pdf' : 'application/octet-stream'}
+    )
+  : doc.fileBlob!;
+const url=URL.createObjectURL(blob);const link=document.createElement('a');
+link.href=url;
+link.download=doc.filename;
+document.body.appendChild(link);
+link.click();
+link.remove();window.setTimeout(()=>URL.revokeObjectURL(url),60000);}}><ExternalLink /></button></div>)}</div> : <Empty icon={FileText} title="Aucun document conservé" text="Les PDF et images importés seront disponibles ici comme preuves catalogue." />}
       </section>
     </div>
     <aside style={{display:'grid',alignContent:'start',gap:15}}>

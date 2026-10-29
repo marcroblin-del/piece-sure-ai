@@ -49,20 +49,42 @@ async function serializeRecord(
   record: unknown
 ): Promise<unknown> {
   if (record instanceof Blob) {
-    const bytes = new Uint8Array(await record.arrayBuffer());
-    let binary = '';
-    for (const byte of bytes) {
-      binary += String.fromCharCode(byte);
-    }
+    const data = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result !== 'string') {
+          reject(new Error('Lecture du document impossible'));
+          return;
+        }
+        resolve(result.split(',')[1] || '');
+      };
+      reader.onerror = () =>
+        reject(reader.error || new Error('Erreur de lecture du document'));
+      reader.readAsDataURL(record);
+    });
+
     return {
       __type: 'Blob',
       mime: record.type,
-      data: btoa(binary),
+      data,
     };
   }
 
   if (Array.isArray(record)) {
-    return Promise.all(record.map(serializeRecord));
+    return Promise.all(record.map(async (item, index) => {
+      try {
+        return await serializeRecord(item);
+      } catch (error) {
+        const doc = item as { id?: string; filename?: string };
+        throw new Error(
+          'Enregistrement ' + index +
+          ' — ID : ' + (doc?.id || 'inconnu') +
+          ' — Fichier : ' + (doc?.filename || 'sans nom') +
+          ' — ' + String(error)
+        );
+      }
+    }));
   }
 
   if (record && typeof record === 'object') {
@@ -82,10 +104,19 @@ export async function createBackup(): Promise<Blob> {
   try {
     const data: Record<string, unknown> = {};
 
-    const tables = await readAllTables(db);
+    let tables;
+    try {
+      tables = await readAllTables(db);
+    } catch (error) {
+      throw new Error('LECTURE INDEXEDDB : ' + String(error));
+    }
 
     for (const table of TABLES) {
-      data[table] = await serializeRecord(tables[table]);
+      try {
+        data[table] = await serializeRecord(tables[table]);
+      } catch (error) {
+        throw new Error('SERIALISATION ' + table + ' : ' + String(error));
+      }
     }
 
     const backup = {
