@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PIÈCE-SÛRE AI — Test connecteur</title>
+<style>
+  body { font-family: -apple-system, sans-serif; margin: 1rem; background:#0f172a; color:#e2e8f0; }
+  h1 { font-size: 1.2rem; }
+  input, button { font-size: 1rem; padding: .6rem; border-radius: 8px; }
+  input { width: 100%; box-sizing: border-box; }
+  button { background:#2563eb; color:white; border:none; margin-top:.5rem; }
+  pre { background:#1e293b; padding: .8rem; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
+  .avertissement { color:#fbbf24; }
+</style>
+</head>
+<body>
+<h1>Test du connecteur — PIÈCE-SÛRE AI</h1>
+<p class="avertissement">Chaque recherche avec une plaque VALIDE consomme 1 crédit.
+Une plaque au format invalide ne consomme rien.</p>
+<label for="plaque">Immatriculation (format AA-123-AA)</label>
+<input id="plaque" placeholder="AA-123-AA" autocomplete="off">
+<button id="go">Interroger</button>
+<h2>Réponse</h2>
+<pre id="out">Aucune requête envoyée.</pre>
+<script>
+const URL_CONNECTEUR = "https://piece-sure-connecteur.marcroblin48.workers.dev/";
+document.getElementById("go").addEventListener("click", async () => {
+  const valeur = document.getElementById("plaque").value.trim();
+  const out = document.getElementById("out");
+  out.textContent = "Requête en cours…";
+  try {
+    const r = await fetch(URL_CONNECTEUR, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "plaque", valeur: valeur })
+    });
+    const texte = await r.text();
+    out.textContent = "Statut HTTP : " + r.status + "\n\n" + texte;
+  } catch (e) {
+    out.textContent = "Erreur réseau : " + e.message;
+  }
+});
+</script>
+</body>
+</html>
