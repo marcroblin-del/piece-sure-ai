@@ -3,43 +3,120 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PIÈCE-SÛRE AI — Test connecteur</title>
+<title>PIÈCE-SÛRE AI — Test du connecteur</title>
 <style>
-  body { font-family: -apple-system, sans-serif; margin: 1rem; background:#0f172a; color:#e2e8f0; }
-  h1 { font-size: 1.2rem; }
-  input, button { font-size: 1rem; padding: .6rem; border-radius: 8px; }
-  input { width: 100%; box-sizing: border-box; }
-  button { background:#2563eb; color:white; border:none; margin-top:.5rem; }
-  pre { background:#1e293b; padding: .8rem; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
-  .avertissement { color:#fbbf24; }
+:root { color-scheme: dark; }
+body { font-family: -apple-system, "Segoe UI", sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 1rem; max-width: 44rem; margin-inline: auto; }
+h1 { font-size: 1.2rem; }
+h2 { font-size: 1rem; margin-top: .3rem; }
+.carte { background: #1e293b; border: 1px solid #334155; border-radius: .6rem; padding: .8rem; margin-bottom: 1rem; }
+label { display: block; margin: .5rem 0 .2rem; font-size: .9rem; }
+input { width: 100%; box-sizing: border-box; padding: .5rem; border-radius: .4rem; border: 1px solid #475569; background: #0f172a; color: inherit; font-size: 1rem; }
+button { padding: .5rem .9rem; margin: .5rem .3rem 0 0; border-radius: .4rem; border: 1px solid #475569; background: #2563eb; color: white; font-size: .95rem; }
+button:disabled { opacity: .5; }
+button.secondaire { background: #334155; }
+.avertissement { background: #7c2d12; border: 1px solid #ea580c; border-radius: .4rem; padding: .5rem; font-size: .85rem; margin: .5rem 0; }
+#resultat { white-space: pre-wrap; word-break: break-word; background: #020617; border: 1px solid #334155; border-radius: .4rem; padding: .7rem; font-family: ui-monospace, Menlo, monospace; font-size: .85rem; min-height: 1.2rem; }
 </style>
 </head>
 <body>
-<h1>Test du connecteur — PIÈCE-SÛRE AI</h1>
-<p class="avertissement">Chaque recherche avec une plaque VALIDE consomme 1 crédit.
-Une plaque au format invalide ne consomme rien.</p>
-<label for="plaque">Immatriculation (format AA-123-AA)</label>
-<input id="plaque" placeholder="AA-123-AA" autocomplete="off">
-<button id="go">Interroger</button>
-<h2>Réponse</h2>
-<pre id="out">Aucune requête envoyée.</pre>
+<h1>PIÈCE-SÛRE AI — Test du connecteur</h1>
+<p>Page de test technique. L'application principale n'utilise pas encore le connecteur.</p>
+
+<div class="carte">
+<h2>Phrase d'accès</h2>
+<label for="phrase">Phrase d'atelier (retenue par ce navigateur uniquement ; elle n'est écrite nulle part dans le code)</label>
+<input id="phrase" type="password" autocomplete="off" placeholder="Phrase d'accès de l'atelier">
+<button id="effacerPhrase" class="secondaire" type="button">Effacer la phrase enregistrée</button>
+</div>
+
+<div class="carte">
+<h2>Requête plaque</h2>
+<div class="avertissement">Une plaque au format valide consomme 1 crédit du fournisseur. Pour un test gratuit, utilisez une plaque invalide comme AI-123-AA.</div>
+<label for="plaque">Plaque (format AA-123-AA)</label>
+<input id="plaque" type="text" autocapitalize="characters" autocomplete="off" placeholder="AA-123-AA">
+<button id="interroger" type="button">Interroger (1 crédit si plaque valide)</button>
+</div>
+
+<div class="carte">
+<h2>Requête solde</h2>
+<p>Consulte le solde de la clé configurée côté serveur. Relevé du compteur du fournisseur à faire avant et après.</p>
+<button id="solde" class="secondaire" type="button">Vérifier le solde</button>
+</div>
+
+<div class="carte">
+<h2>Résultat</h2>
+<div id="resultat">—</div>
+</div>
+
 <script>
+"use strict";
 const URL_CONNECTEUR = "https://piece-sure-connecteur.marcroblin48.workers.dev/";
-document.getElementById("go").addEventListener("click", async () => {
-  const valeur = document.getElementById("plaque").value.trim();
-  const out = document.getElementById("out");
-  out.textContent = "Requête en cours…";
-  try {
-    const r = await fetch(URL_CONNECTEUR, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ type: "plaque", valeur: valeur })
-    });
-    const texte = await r.text();
-    out.textContent = "Statut HTTP : " + r.status + "\n\n" + texte;
-  } catch (e) {
-    out.textContent = "Erreur réseau : " + e.message;
+const CLE_PHRASE = "pieceSurePhrase";
+
+const champPhrase = document.getElementById("phrase");
+const champPlaque = document.getElementById("plaque");
+const boutonInterroger = document.getElementById("interroger");
+const boutonSolde = document.getElementById("solde");
+const boutonEffacer = document.getElementById("effacerPhrase");
+const zoneResultat = document.getElementById("resultat");
+
+champPhrase.value = localStorage.getItem(CLE_PHRASE) || "";
+
+function afficher(texte) {
+  zoneResultat.textContent = texte;
+}
+
+function verifierPhrase() {
+  const phrase = champPhrase.value.trim();
+  if (!phrase) {
+    afficher("Renseignez d'abord la phrase d'accès, puis réessayez.");
+    return null;
   }
+  localStorage.setItem(CLE_PHRASE, phrase);
+  return phrase;
+}
+
+async function envoyer(type, valeur) {
+  const phrase = verifierPhrase();
+  if (!phrase) return;
+  boutonInterroger.disabled = true;
+  boutonSolde.disabled = true;
+  afficher("Consultation en cours…");
+  try {
+    const reponse = await fetch(URL_CONNECTEUR, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Access-Phrase": phrase
+      },
+      body: JSON.stringify({ type: type, valeur: valeur })
+    });
+    const statut = reponse.status;
+    const texte = await reponse.text();
+    let corps = texte;
+    try { corps = JSON.stringify(JSON.parse(texte), null, 2); } catch (e) {}
+    afficher("Statut HTTP : " + statut + "\n\n" + corps);
+  } catch (erreur) {
+    afficher("Échec réseau : le connecteur n'a pas pu être joint.\n" + String(erreur));
+  } finally {
+    boutonInterroger.disabled = false;
+    boutonSolde.disabled = false;
+  }
+}
+
+boutonInterroger.addEventListener("click", function () {
+  envoyer("plaque", champPlaque.value);
+});
+
+boutonSolde.addEventListener("click", function () {
+  envoyer("solde", "");
+});
+
+boutonEffacer.addEventListener("click", function () {
+  localStorage.removeItem(CLE_PHRASE);
+  champPhrase.value = "";
+  afficher("Phrase effacée de ce navigateur.");
 });
 </script>
 </body>
