@@ -19,7 +19,7 @@
   var URL_CONNECTEUR = "https://piece-sure-connecteur.marcroblin48.workers.dev/";
   var CLE_PHRASE = "pieceSurePhrase";
   var CLE_TRACE = "pcDerniereTrace";
-  var TEXTE_BANDEAU = "CONNECTEUR PLAQUE : ACTIF · VÉRIFICATION TOUJOURS MANUELLE";
+  var TEXTE_BANDEAU = "CONNECTEUR PLAQUE : INSTALLÉ · VÉRIFICATION TOUJOURS MANUELLE";
   var REGEX_PLAQUE = /^[A-HJ-NP-TV-Z]{2}[0-9]{3}[A-HJ-NP-TV-Z]{2}$/;
 
   var emplacementCarte = "?";
