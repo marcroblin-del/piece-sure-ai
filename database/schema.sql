@@ -26,7 +26,7 @@ CREATE TABLE pieces (
 
 -- SOURCES
 CREATE TABLE sources (
-  id SERIAL SERIAL,
+  id SERIAL PRIMARY KEY,
   nom TEXT NOT NULL,
   url TEXT,
   type TEXT,
