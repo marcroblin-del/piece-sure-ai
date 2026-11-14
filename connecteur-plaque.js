@@ -102,7 +102,9 @@
     "#pc-carte .pc-liste li{margin:3px 0;font-size:.95em}",
     "#pc-carte .pc-pre{background:#0d1117;border:1px solid #39415a;border-radius:8px;padding:10px;font-size:.85em;white-space:pre-wrap;word-break:break-word}",
     "#pc-carte details{margin-top:12px}",
-    "#pc-carte summary{cursor:pointer}"
+    "#pc-carte summary{cursor:pointer}",
+    "#pc-carte{grid-column:1/-1}",
+    "@media print{#pc-carte{display:none!important}}"
   ].join(" ");
 
   var HTML_CARTE = [
@@ -221,6 +223,12 @@
       note.hidden = false;
     });
     $("pc-remplir").addEventListener("click", remplirChampsVides);
+     if (c) {
+  c.value = plan[j].valeur;
+  c.dispatchEvent(new Event("input", { bubbles: true }));
+  c.dispatchEvent(new Event("change", { bubbles: true }));
+  remplis.push(plan[j].label);
+}
     $("pc-diagnostic").addEventListener("click", afficherDiagnostic);
     $("pc-copier-diag").addEventListener("click", function () {
       copier($("pc-diag-sortie").textContent, this);
@@ -285,7 +293,7 @@
 
   function interroger() {
     var phrase = $("pc-phrase").value.trim();
-    var brut = $("pc-plaque").value.trim();
+    var brut = $("pc-plaque").value.trim();var brut = $("pc-plaque").value.trim() || String(($("plate") || {}).value || "").trim();
     var sortie = $("pc-resultat");
 
     if (!phrase) {
