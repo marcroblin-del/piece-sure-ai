@@ -172,10 +172,11 @@
     var h2 = headingParTexte(/statut\s+de\s+v[ée]rification/i);
     var h1 = headingParTexte(/dossier\s+v[ée]hicule/i);
 
-    if (h2 && h2.parentElement) {
-      h2.parentElement.insertBefore(carte, h2);
-      emplacementCarte = "juste au-dessus du titre « Statut de vérification » (parent : " + decrireParent(h2) + ")";
-    } else if (h1 && h1.parentElement && h1.parentElement.parentElement) {
+   if (h2 && h2.parentElement) {
+  var sec = (h2.closest && h2.closest("section")) || h2.parentElement;
+  sec.parentElement.insertBefore(carte, sec.nextSibling);
+  emplacementCarte = "sous la section « Statut de vérification » (pleine largeur)";
+} else if (h1 && h1.parentElement && h1.parentElement.parentElement) {
       var bloc1 = h1.parentElement;
       bloc1.parentElement.insertBefore(carte, bloc1.nextSibling);
       emplacementCarte = "après le bloc « Dossier véhicule » (bloc : " + decrireParent(h1) + ")";
