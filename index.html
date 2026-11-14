@@ -1,0 +1,672 @@
+``html
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>PIÈCE-SÛRE AI — Assistant pièces automobiles</title>
+<style>
+:root{--bg:#0b1220;--panel:#121d30;--line:#2c3d56;--text:#edf3fc;--muted:#a9b8cc;--accent:#65b7ff;--warn:#ffd166;--good:#6ee7b7;--danger:#ff9292}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(140deg,#0a1220,#101c2f);color:var(--text);font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:22px max(16px,calc((100vw - 1250px)/2));border-bottom:1px solid var(--line);background:#0b1424ef;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.head{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.brand{display:flex;gap:12px;align-items:center}
+.logo{width:45px;height:45px;border-radius:13px;background:linear-gradient(135deg,#3184d6,#6ac5ff);display:grid;place-items:center;color:#071527;font-weight:900;font-size:18px}
+.muted{color:var(--muted)}
+.pill{border:1px solid var(--line);border-radius:99px;padding:5px 10px;font-size:12px;color:var(--warn)}
+.pill.on{color:var(--good)}
+main{max-width:1250px;margin:22px auto;padding:0 16px 50px}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.card{background:linear-gradient(180deg,var(--panel),#101a2b);border:1px solid var(--line);border-radius:16px;padding:18px;min-width:0}
+.span8{grid-column:span 8}.span4{grid-column:span 4}.span6{grid-column:span 6}.span12{grid-column:span 12}
+h1{font-size:21px;margin:0}h2{font-size:17px;margin:0 0 12px}h3{font-size:14px;margin:0 0 8px}
+.sub{font-size:13px;color:var(--muted);margin-top:3px}
+label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+input,select,textarea{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:#0b1525;color:var(--text);font:inherit;font-size:16px;min-width:0}
+textarea{resize:vertical;min-height:78px}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field.full{grid-column:1/-1}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:12px 0}
+.bar select{flex:1;min-width:200px}
+button,.button{border:1px solid #3a5676;background:#1c3552;color:var(--text);border-radius:9px;padding:9px 12px;font:inherit;font-weight:650;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px}
+button.primary{background:#1e6cae;border-color:#4196db}
+button.danger{border-color:#744b55;background:#40212a}
+button:hover,.button:hover{filter:brightness(1.15)}
+button:disabled{opacity:.5;cursor:wait}
+.status{padding:12px;border-radius:11px;background:#2c2819;border:1px solid #6c5b2d;color:#ffe5a0}
+.status.good{background:#122c29;border-color:#28695b;color:#a8f5db}
+.status.bad{background:#321e27;border-color:#75404d;color:#ffc4cd}
+.status ul{margin:6px 0 0 18px;padding:0}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.metric{background:#0b1525;border:1px solid var(--line);border-radius:10px;padding:11px}
+.metric b{display:block;margin-top:4px;font-size:13px;overflow-wrap:anywhere}
+.list{display:grid;gap:9px}
+.item{border:1px solid var(--line);background:#0d1727;border-radius:10px;padding:11px;overflow-wrap:anywhere}
+.item .meta,.res .meta{font-size:12px;color:var(--muted);margin-top:5px}
+.item a{color:#9ed5ff}
+.res{border-left:4px solid var(--line);background:#0d1727;border-radius:8px;padding:9px 11px;overflow-wrap:anywhere}
+.res.good{border-left-color:var(--good)}.res.warn{border-left-color:var(--warn)}.res.bad{border-left-color:var(--danger)}
+.badge{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:1px 8px;font-size:11px;font-weight:700;margin-left:6px}
+.badge.good{color:var(--good);border-color:#28695b}.badge.warn{color:var(--warn);border-color:#6c5b2d}
+.tiny{font-size:12px}.empty{color:var(--muted);font-style:italic}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.log{max-height:260px;overflow:auto}
+.logline{border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}
+.foot{font-size:12px;color:var(--muted);margin-top:18px}
+.checks{display:grid;gap:8px}
+.checks label{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--text);margin:0}
+.checks input{width:auto;margin-top:4px}
+.fileinput{padding:14px;border:1px dashed #49617e;border-radius:12px;background:#0b1525}
+.source-actions{display:flex;gap:8px;flex-wrap:wrap}
+.source-actions .off{opacity:.45;cursor:not-allowed}
+.nltable{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+.nltable td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.nltable td:first-child{color:var(--muted);white-space:nowrap}
+.nl-ok{color:var(--good)}.nl-warn{color:var(--warn)}.nl-bad{color:var(--danger)}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#1c3552;border:1px solid #4196db;color:#fff;padding:11px 16px;border-radius:12px;max-width:92vw;opacity:0;pointer-events:none;transition:.25s;z-index:50;text-align:center}
+#toast.show{opacity:1}#toast.bad{background:#40212a;border-color:#744b55}
+#toast.ok{background:#122c29;border-color:#28695b}
+@media(max-width:850px){.span8,.span4,.span6{grid-column:span 12}.fields,.metrics,.two{grid-template-columns:1fr}header{position:static}}
+@media print{body{background:#fff;color:#000}header,.actions,.fileinput,.source-actions,#toast,.bar,button,#assistantNL,#pc-carte{display:none!important}
+.grid{display:block}.card{background:#fff;border-color:#999;margin-bottom:10px;break-inside:avoid}
+input,select,textarea{background:#fff;color:#000;border-color:#999}.muted,.sub,.meta,.empty{color:#333}
+.status,.status.good,.status.bad,.item,.res,.metric{background:#fff;color:#000;border-color:#000}}
+</style></head>
+<body>
+<header><div class="head">
+ <div class="brand"><div class="logo">PS</div><div><h1>PIÈCE-SÛRE AI</h1><div class="sub">Assistant vendeur pièces auto · Dossiers, sources externes et traçabilité</div></div></div>
+ <div class="pill" id="pill">MODE LOCAL · BACKEND NON CONFIGURÉ</div>
+</div></header>
+
+<main><div class="grid">
+
+<section class="card span12" id="assistantNL"><h2>Assistant de saisie</h2>
+<p class="sub">Décris la demande en une phrase (saisie ou dictée). L’analyse se fait sur cet appareil, par mots-clés : rien n’est envoyé. Il propose, tu confirmes. Il ne valide aucune règle de décision.</p>
+<div class="field" style="margin-top:10px"><label for="nlInput">Description</label><textarea id="nlInput" placeholder="Ex. Renault Clio 4 2016, plaque AB-123-CD, VIN …, moteur K9K, pneus 195/55 R16, plaquettes de frein avant"></textarea></div>
+<div class="actions"><button class="primary" id="nlAnalyze">Analyser</button><button id="nlClear">Effacer</button></div>
+<div id="nlResult" aria-live="polite"></div></section>
+
+<section class="card span8"><h2>1 · Dossier véhicule</h2>
+<p class="sub">Enregistrement automatique dans ce navigateur. Les fichiers joints ne sont pas conservés (session uniquement).</p>
+<div class="bar">
+ <div style="flex:1;min-width:200px"><label for="dossierSel">Dossier</label><select id="dossierSel"></select></div>
+ <button id="newDossier">+ Nouveau dossier</button><button class="danger" id="delDossier">Supprimer ce dossier</button>
+</div>
+<div class="fields">
+<div class="field"><label for="caseid">N° de dossier</label><input id="caseid"></div>
+<div class="field"><label for="date">Date du dossier</label><input id="date" type="date"></div>
+<div class="field"><label for="make">Marque</label><input id="make"></div>
+<div class="field"><label for="model">Modèle / carrosserie</label><input id="model"></div>
+<div class="field"><label for="year">Année</label><input id="year"></div>
+<div class="field"><label for="plate">Immatriculation</label><input id="plate" autocomplete="off" autocapitalize="characters"></div>
+<div class="field full"><label for="vin">VIN — rubrique E (17 caractères)</label><input id="vin" autocomplete="off" autocapitalize="characters"></div>
+<div class="field"><label for="type">Type / D.2</label><input id="type"></div>
+<div class="field"><label for="approval">Réception / K</label><input id="approval"></div>
+<div class="field"><label for="engine">Code moteur</label><input id="engine"></div>
+<div class="field"><label for="fuel">Carburant / puissance</label><input id="fuel"></div>
+<div class="field"><label for="tyres">Dimension pneus</label><input id="tyres"></div>
+<div class="field"><label for="system">Système / code de freinage</label><input id="system" placeholder="Non confirmé"></div>
+<div class="field full"><label for="request">Demande client</label><input id="request" placeholder="Ex. plaquettes de frein avant"></div>
+<div class="field full"><label for="notes">Notes et informations complémentaires</label><textarea id="notes" placeholder="Historique, document consulté, observation, retour fournisseur…"></textarea></div>
+</div>
+<div class="actions"><button class="primary" id="save">Enregistrer le dossier</button><button id="export">Exporter le dossier JSON</button><button id="print">Imprimer / PDF</button><button class="danger" id="reset">Réinitialiser</button></div>
+<div id="saveMsg" class="sub" aria-live="polite"></div></section>
+
+<section class="card span4"><h2>2 · Statut de vérification</h2>
+<div class="status bad" id="decision"></div>
+<div class="metrics" style="margin-top:12px">
+ <div class="metric"><span class="muted tiny">Backend / TecDoc</span><b id="mBackend">—</b></div>
+ <div class="metric"><span class="muted tiny">Sources</span><b id="mSources">—</b></div>
+ <div class="metric"><span class="muted tiny">Stock / délai</span><b id="mStock">—</b></div>
+</div>
+<h3 style="margin-top:16px">Règles de décision</h3>
+<div class="checks" id="rules"></div>
+<p class="sub">Une case ne peut être cochée à la main que si une source du bon type, avec ce qu’elle confirme, figure au registre. Elle est cochée automatiquement uniquement si le backend renvoie « ok ». Tout changement de VIN annule les validations.</p></section>
+
+<section class="card span6"><h2>3 · Vérifications automatiques</h2>
+<p class="sub">Décodage VIN gratuit (NHTSA, surtout fiable pour les véhicules US) et interrogation de ton backend. Un résultat absent est affiché « non disponible », jamais « ok ».</p>
+<div class="actions"><button class="primary" id="decodeBtn">Décoder le VIN (NHTSA)</button><button class="primary" id="apiRun">Interroger le backend</button></div>
+<div id="decoded" class="sub" style="margin-top:10px"></div>
+<div id="apiOut" class="list" style="margin-top:10px"></div>
+<details style="margin-top:14px"><summary>Configuration du backend</summary>
+<div class="fields" style="margin-top:10px">
+ <div class="field full"><label for="apiBase">URL du backend</label><input id="apiBase" type="url" placeholder="https://piece-sure-api.xxx.workers.dev"></div>
+ <div class="field full"><label for="apiToken">Jeton d’accès (stocké sur cet appareil, jamais exporté)</label><input id="apiToken" type="password" autocomplete="off"></div>
+</div>
+<div class="actions"><button id="apiSave">Enregistrer</button><button id="apiTest">Tester la connexion</button></div></details></section>
+
+<section class="card span6"><h2>4 · Points à confirmer avec le client</h2>
+<p class="sub">Choisis la famille de pièce : les questions à poser avant de vendre s’affichent. Tous les points doivent être cochés pour débloquer la commande.</p>
+<div class="field" style="margin:10px 0"><label for="famSel">Famille de pièce</label><select id="famSel"></select></div>
+<div class="checks" id="famList"></div></section>
+
+<section class="card span6"><h2>5 · Références candidates</h2>
+<p class="sub">Une référence n’est « validée » que lorsqu’elle est rattachée à une source du registre.</p>
+<div id="candidates" class="list" style="margin:12px 0"></div>
+<div class="fields">
+ <div class="field"><label for="candRef">Référence</label><input id="candRef" placeholder="Ex. 410607369R" autocapitalize="characters"></div>
+ <div class="field"><label for="candBrand">Marque</label><input id="candBrand" placeholder="Renault, Bosch…"></div>
+ <div class="field"><label for="candRole">Rôle</label><select id="candRole"><option>OE</option><option>Équivalent</option><option>À qualifier</option></select></div>
+ <div class="field"><label for="candNote">Note</label><input id="candNote"></div>
+</div>
+<div class="actions"><button class="primary" id="addCand">Ajouter la référence</button></div></section>
+
+<section class="card span6"><h2>6 · Rechercher et consigner une source</h2>
+<p class="sub">Les liens s’ouvrent dans un nouvel onglet et se préremplissent avec le dossier. Note ensuite ce que la source confirme réellement.</p>
+<div class="source-actions" id="links" style="margin:12px 0"></div>
+<div class="fields">
+<div class="field full"><label for="sourceTitle">Titre du document / page consultée</label><input id="sourceTitle" placeholder="Ex. fiche technique fabricant"></div>
+<div class="field full"><label for="sourceUrl">URL du document externe</label><input id="sourceUrl" type="url" placeholder="https://…"></div>
+<div class="field full"><label for="sourceType">Nature de la source</label><select id="sourceType"><option>Catalogue constructeur</option><option>Catalogue professionnel</option><option>Fabricant de pièces</option><option>Distributeur / fournisseur</option><option>Forum / source communautaire</option><option>Autre</option></select></div>
+<div class="field full"><label for="sourceFinding">Ce que la source confirme réellement</label><textarea id="sourceFinding" placeholder="Référence, dimensions, code de freinage, conditions de montage, date de consultation…"></textarea></div>
+</div>
+<div class="actions"><button class="primary" id="addSource">Ajouter au registre des sources</button></div></section>
+
+<section class="card span6"><h2>7 · Registre des sources</h2><div id="sourceList" class="list"></div></section>
+
+<section class="card span6"><h2>8 · Documents locaux</h2>
+<p class="sub">PDF, photos, factures, CSV… Le contenu reste dans ton navigateur (session uniquement, rien n’est envoyé).</p>
+<div class="fileinput"><input id="files" type="file" multiple accept=".pdf,.txt,.csv,.json,.xml,.html,.htm,.md,.jpg,.jpeg,.png,.webp,.xlsx,.xls,.doc,.docx"></div>
+<div id="fileList" class="list" style="margin-top:12px"></div>
+<div class="actions"><button id="clearFiles">Retirer la liste des documents</button></div></section>
+
+<section class="card span6"><h2>9 · Journal de traçabilité</h2><div class="log" id="log"></div>
+<div class="actions"><button id="exportLog">Exporter le journal TXT</button><button id="clearLog">Effacer le journal</button></div></section>
+
+<section class="card span12"><h2>10 · Limites et sécurité</h2><div class="two">
+<div><h3>Cette page peut</h3><ul class="muted"><li>décoder un VIN via NHTSA (partiel pour l’Europe) ;</li><li>interroger ton backend (TecDoc, stock) et n’afficher « ok » que si lui le dit ;</li><li>gérer plusieurs dossiers, sources, références et un journal ;</li><li>exporter en JSON/TXT et imprimer.</li></ul></div>
+<div><h3>Cette page ne peut pas, seule</h3><ul class="muted"><li>garantir la compatibilité d’une pièce ;</li><li>lire TecDoc ou les catalogues payants sans API ni compte ;</li><li>lire les sites tiers (restrictions CORS) ;</li><li>passer commande à ta place.</li></ul></div></div>
+<div class="status" style="margin-top:12px">Principe PIÈCE-SÛRE : NE PAS DEVINER → VÉRIFIER → DÉCIDER → TRACER. Même « vérifications complètes » ne remplace pas la validation finale par un humain.</div>
+<p class="foot">Confidentialité : un VIN associé à une plaque est une donnée personnelle. Ne publie jamais de dossier réel dans ce dépôt public.</p></section>
+
+</div></main>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const KEY='pieceSureAI_v2',CFG='pieceSureAI_cfg_v1',OLD='pieceSureAI_full_v1';
+const FIELDS=['caseid','date','make','model','year','plate','vin','type','approval','engine','fuel','tyres','system','request','notes'];
+const CAT=['Catalogue constructeur','Catalogue professionnel'];
+const RULES=[
+ {id:'vin',label:'VIN vérifié dans une base professionnelle',types:CAT},
+ {id:'oe',label:'Référence constructeur confirmée',types:CAT},
+ {id:'eq',label:'Équivalence fabricant confirmée',types:[...CAT,'Fabricant de pièces']},
+ {id:'stock',label:'Disponibilité et délai confirmés',types:['Distributeur / fournisseur']}
+];
+const FAMILIES={
+ freins:{label:'Freinage',items:['Essieu : avant ou arrière','Diamètre du disque relevé (mm), sur l’ancien disque ou la fiche constructeur','Disque plein ou ventilé','Frein de stationnement arrière : mécanique ou électrique','Avec ou sans capteur d’usure (connecteur comparé)','Système / code de freinage confirmé (carte grise, plaque, catalogue)']},
+ distribution:{label:'Distribution',items:['Courroie ou chaîne','Kit avec ou sans pompe à eau','Code moteur exact confirmé','Courroie d’accessoires : avec ou sans climatisation']},
+ embrayage:{label:'Embrayage',items:['Code boîte de vitesses','Volant moteur bi-masse ou rigide','Diamètre du disque (mm) et cannelures','Butée mécanique ou hydraulique','Kit seul ou avec volant moteur']},
+ suspension:{label:'Suspension / direction',items:['Essieu avant ou arrière, côté gauche ou droit','Châssis standard, sport ou renforcé','Suspension pilotée : oui ou non','Berline ou break']},
+ eclairage:{label:'Éclairage',items:['Côté gauche ou droit','Technologie : halogène, xénon, LED','Avec ou sans correcteur de site','Connecteur : nombre de broches comparé']},
+ electrique:{label:'Électrique / démarrage',items:['Batterie : capacité (Ah), polarité, technologie','Start & Stop : oui ou non','Alternateur : ampérage et poulie','Démarreur : puissance et nombre de dents']}
+};
+let cfg={apiBase:'',apiToken:''},db={current:'',dossiers:{}},D,files=[];
+
+/* ---------- utilitaires ---------- */
+const uid=()=>'id_'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const now=()=>new Date().toLocaleString('fr-FR');
+const today=()=>new Date().toISOString().slice(0,10);
+const F=k=>$(k).value.trim();
+const isVin=v=>/^[A-HJ-NPR-Z0-9]{17}$/.test(String(v||'').trim().toUpperCase());
+const debounce=(fn,ms)=>{let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}};
+let tt;function toast(m,k=''){const t=$('toast');t.textContent=m;t.className='show '+k;clearTimeout(tt);tt=setTimeout(()=>t.className='',3500)}
+function download(name,content,type){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+const famItems=f=>(FAMILIES[f]||{}).items||[];
+
+/* ---------- données ---------- */
+function blank(){
+ const f={};FIELDS.forEach(k=>f[k]='');
+ const used=new Set(Object.values(db.dossiers).map(x=>x.fields.caseid));
+ let n=Object.keys(db.dossiers).length+1;
+ while(used.has('PS-'+String(n).padStart(3,'0')))n++;
+ f.caseid='PS-'+String(n).padStart(3,'0');f.date=today();
+ return{id:uid(),fields:f,sources:[],candidates:[],logs:[],rules:{},rulesVin:'',family:'',checked:[],checks:null,decoded:null,updatedAt:''};
+}
+function persist(){D.updatedAt=new Date().toISOString();try{localStorage.setItem(KEY,JSON.stringify(db));return true}catch(e){toast('Stockage local plein ou bloqué : exporte le dossier en JSON.','bad');return false}}
+function log(s){D.logs.unshift(now()+' — '+s);D.logs=D.logs.slice(0,300);persist();renderLog()}
+function migrate(){
+ db={current:'',dossiers:{}};const d=blank();let old=null;
+ try{old=JSON.parse(localStorage.getItem(OLD)||'null')}catch(e){}
+ if(old&&old.dossier){
+  FIELDS.forEach(k=>{if(old.dossier[k]!==undefined)d.fields[k]=old.dossier[k]});
+  d.sources=(old.sources||[]).map(s=>({id:uid(),...s}));d.logs=old.traceability||[];
+  (old.referencesCandidates||[]).forEach(r=>String(r.reference||'').split(/\s*\/\s*/).forEach(p=>{
+   const m=p.match(/^([A-Za-zÀ-ÿ.]{2,})\s+(\d[\w .-]*)$/);
+   d.candidates.push(m?{ref:m[2].trim(),brand:m[1],role:'Équivalent',note:'Migrée de la v1 : non validée',sourceId:''}
+    :{ref:p.trim(),brand:'',role:'À qualifier',note:'Migrée de la v1 : non validée',sourceId:''});
+  }));
+  d.logs.unshift(now()+' — Dossier migré depuis la version 1. Aucune validation reprise.');
+ }
+ db.dossiers[d.id]=d;db.current=d.id;
+}
+function loadAll(){
+ try{cfg={...cfg,...JSON.parse(localStorage.getItem(CFG)||'{}')}}catch(e){}
+ try{db=JSON.parse(localStorage.getItem(KEY)||'null')||db}catch(e){}
+ if(!db.dossiers||!Object.keys(db.dossiers).length)migrate();
+ if(!db.dossiers[db.current])db.current=Object.keys(db.dossiers)[0];
+ D=db.dossiers[db.current];
+}
+function loadFields(){FIELDS.forEach(k=>$(k).value=D.fields[k]||'')}
+function syncFields(){
+ let ch=false;FIELDS.forEach(k=>{const v=$(k).value;if(D.fields[k]!==v){D.fields[k]=v;ch=true}});
+ if(!ch)return;
+ const v=F('vin').toUpperCase();
+ const rulesOn=Object.values(D.rules).some(r=>r.on);
+ const stale=(rulesOn&&v!==D.rulesVin)||(D.decoded&&D.decoded.vin!==v)||(D.checks&&D.checks.vin!==v);
+ if(stale){
+  D.rules={};D.rulesVin='';D.checks=null;D.decoded=null;
+  toast('VIN modifié : validations et vérifications annulées.','bad');
+  log('VIN modifié : validations, décodage et vérifications automatiques annulés.');renderAll();return;
+ }
+ persist();renderDecision();renderLinks();renderSelector();
+}
+
+/* ---------- décision ---------- */
+const isConfirmed=c=>!!c.sourceId&&D.sources.some(s=>s.id===c.sourceId);
+function problems(){
+ const p=[];
+ if(!isVin(F('vin')))p.push('VIN valide (17 caractères, sans I, O, Q)');
+ RULES.forEach(r=>{if(!(D.rules[r.id]&&D.rules[r.id].on))p.push(r.label)});
+ if(!D.candidates.some(isConfirmed))p.push('une référence candidate rattachée à une source');
+ if(!D.family)p.push('famille de pièce non choisie');
+ else{const left=famItems(D.family).filter((_,i)=>!D.checked.includes(D.family+i)).length;if(left)p.push(left+' point(s) à confirmer avec le client')}
+ return p;
+}
+function renderDecision(){
+ const p=problems(),el=$('decision');
+ if(!p.length){el.className='status good';el.innerHTML='<b>VÉRIFICATIONS COMPLÈTES</b><br>Commande envisageable après validation humaine finale.'}
+ else{el.className='status bad';el.innerHTML='<b>COMMANDE BLOQUÉE</b><br>Il manque :<ul>'+p.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'}
+ renderMetrics();
+}
+function renderMetrics(){
+ $('mBackend').textContent=cfg.apiBase?(D.checks?'Interrogé '+D.checks.at:'Configuré'):'Non configuré';
+ $('mSources').textContent=D.sources.length+' au registre';
+ const s=D.checks&&D.checks.rows[3];
+ $('mStock').textContent=s?(s[1].error?'Non disponible':(s[1].status||'Consulté')):'Non consulté';
+ $('pill').textContent=cfg.apiBase?'BACKEND CONFIGURÉ':'MODE LOCAL · BACKEND NON CONFIGURÉ';
+ $('pill').className='pill'+(cfg.apiBase?' on':'');
+}
+function renderRules(){
+ $('rules').innerHTML=RULES.map(r=>{
+  const s=D.rules[r.id]||{};
+  const info=s.on?` <span class="tiny muted">(${s.by==='api'?'API':'manuel'} · ${esc(s.note||'')} · ${esc(s.at||'')})</span>`:'';
+  return `<label><input type="checkbox" data-rule="${r.id}" ${s.on?'checked':''}><span>${esc(r.label)}${info}</span></label>`;
+ }).join('');
+}
+function setAuto(id,on,note){
+ if(on)D.rules[id]={on:true,by:'api',at:now(),note:note||'backend'};
+ else if(D.rules[id]&&D.rules[id].by==='api')D.rules[id]={on:false};
+}
+
+/* ---------- rendus ---------- */
+function renderSelector(){
+ $('dossierSel').innerHTML=Object.values(db.dossiers).map(d=>{const f=d.fields;
+  return `<option value="${esc(d.id)}" ${d.id===db.current?'selected':''}>${esc([f.caseid,f.make,f.model,f.plate].filter(Boolean).join(' · ')||'Dossier vide')}</option>`}).join('');
+}
+function renderLog(){$('log').innerHTML=D.logs.length?D.logs.map(x=>'<div class="logline">'+esc(x)+'</div>').join(''):'<div class="empty">Journal vide.</div>'}
+function renderSources(){
+ $('sourceList').innerHTML=D.sources.length?D.sources.map((s,i)=>`<div class="item"><b>${esc(s.title||'Source sans titre')}</b><div class="meta">${esc(s.type)} · ${esc(s.date)}</div><div>${esc(s.finding||'Aucune conclusion saisie.')}</div>${s.url?`<div><a target="_blank" rel="noopener" href="${esc(s.url)}">Ouvrir la source ↗</a></div>`:''}<div class="actions"><button data-rm-src="${i}">Supprimer</button></div></div>`).join(''):'<div class="empty">Aucune source ajoutée.</div>';
+}
+function renderCands(){
+ const opts=sel=>'<option value="">— source confirmante : aucune —</option>'+D.sources.map(s=>`<option value="${esc(s.id)}" ${s.id===sel?'selected':''}>${esc(s.title||s.url||'Source')} (${esc(s.type)})</option>`).join('');
+ $('candidates').innerHTML=D.candidates.length?D.candidates.map((c,i)=>{
+  const ok=isConfirmed(c);
+  const q='https://www.google.com/search?q='+encodeURIComponent([c.brand,c.ref,F('request')].filter(Boolean).join(' '));
+  return `<div class="item"><b>${esc([c.brand,c.ref].filter(Boolean).join(' '))}</b><span class="badge ${ok?'good':'warn'}">${ok?'Source rattachée':'Non validée'}</span><div class="meta">${esc(c.role)}${c.note?' · '+esc(c.note):''}</div>
+  <div class="two" style="margin-top:8px"><select data-cand-src="${i}">${opts(c.sourceId)}</select><div class="source-actions"><a class="button" target="_blank" rel="noopener" href="${esc(q)}">Rechercher ↗</a><button data-cand-del="${i}">Supprimer</button></div></div></div>`;
+ }).join(''):'<div class="empty">Aucune référence candidate.</div>';
+}
+function renderFiles(){
+ $('fileList').innerHTML=files.length?files.map((f,i)=>`<div class="item"><b>${esc(f.name)}</b><div class="meta">${esc(f.type)} · ${(f.size/1024).toFixed(1)} Ko · ${f.text!==null?'texte lisible':'à ouvrir avec un logiciel compatible'}</div>${f.text!==null?`<details><summary>Afficher un extrait texte</summary><pre style="white-space:pre-wrap;max-height:220px;overflow:auto">${esc(f.text.slice(0,12000))}${f.text.length>12000?'\n… extrait limité':''}</pre></details>`:''}<div class="actions"><button data-rm-file="${i}">Retirer</button></div></div>`).join(''):'<div class="empty">Aucun document ajouté.</div>';
+}
+function renderFamily(){
+ $('famSel').innerHTML='<option value="">— Choisir une famille —</option>'+Object.entries(FAMILIES).map(([k,v])=>`<option value="${k}" ${k===D.family?'selected':''}>${esc(v.label)}</option>`).join('');
+ $('famList').innerHTML=famItems(D.family).map((t,i)=>`<label><input type="checkbox" data-fam="${D.family+i}" ${D.checked.includes(D.family+i)?'checked':''}><span>${esc(t)}</span></label>`).join('')||'<div class="empty">Aucune famille choisie.</div>';
+}
+function renderLinks(){
+ const vin=isVin(F('vin'))?F('vin').toUpperCase():'';
+ const c=D.candidates.find(x=>x.role==='OE')||D.candidates[0];const ref=c?c.ref:'';
+ const veh=[F('make'),F('model'),F('year'),F('engine')].filter(Boolean).join(' ');
+ const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
+ const L=[['NHTSA (VIN)',vin&&'https://vpic.nhtsa.dot.gov/decoder/Decoder?VIN='+vin],
+  ['Fiche technique',veh&&g(veh+' site:auto-data.net')],
+  ['Recherche référence',ref&&g([ref,F('request')].join(' '))],
+  ['Équipementiers',ref&&g(ref+' (site:boschaftermarket.com OR site:zf.com OR site:brembo.com OR site:valeo.com)')],
+  ['Rappels (FR)','https://rappel.conso.gouv.fr/'],['Bosch Aftermarket','https://www.boschaftermarket.com/'],
+  ['TecDoc / TecAlliance','https://www.tecalliance.net/fr/solutions/tecdoc'],['PartSouq','https://partsouq.com/']];
+ $('links').innerHTML=L.map(([l,u])=>u?`<a class="button" target="_blank" rel="noopener noreferrer" href="${esc(u)}">${esc(l)} ↗</a>`:`<span class="button off" title="Données manquantes (VIN, véhicule ou référence)">${esc(l)}</span>`).join('');
+}
+function renderChecks(){
+ const c=D.checks;
+ $('apiOut').innerHTML=c?`<div class="sub">Interrogé le ${esc(c.at)} · référence : ${esc(c.ref||'—')}</div>`+c.rows.map(([k,r])=>{
+  const bad=!!r.error,st=bad?'warn':({ok:'good',warn:'warn',danger:'bad'}[r.state]||'');
+  return `<div class="res ${st}"><b>${esc(k)}</b> · ${esc(bad?'Non disponible — '+r.error:(r.result||'—'))}<div class="meta">${esc(bad?'Aucune donnée n’est présentée comme vérifiée.':[r.status,r.detail].filter(Boolean).join(' — '))}</div></div>`;
+ }).join(''):'<div class="empty">Aucune vérification automatique lancée.</div>';
+}
+function renderDecoded(){
+ const d=D.decoded;
+ $('decoded').innerHTML=d?(d.make||d.model?`<b>NHTSA :</b> ${esc([d.make,d.model,d.year].filter(Boolean).join(' '))}${d.disp?' · '+esc(String(d.disp).slice(0,4))+' L':''}<br>`:'<b>NHTSA :</b> aucune donnée exploitable.<br>')+(d.partial?'<span style="color:var(--warn)">Décodage partiel (fréquent hors US). À confirmer avec la carte grise et un catalogue.</span><br>':'')+`<span class="muted">Décodé le ${esc(d.at)}. N’établit pas la compatibilité d’une pièce.</span>`:'';
+}
+function renderAll(){renderSelector();renderDecision();renderRules();renderCands();renderSources();renderLog();renderChecks();renderFamily();renderLinks();renderDecoded();renderFiles()}
+
+/* ---------- VIN & backend ---------- */
+async function decode(){
+ const vin=F('vin').toUpperCase();
+ if(!isVin(vin)){toast('VIN invalide : 17 caractères, sans I, O ni Q.','bad');return}
+ const b=$('decodeBtn');b.disabled=true;
+ try{
+  const r=await fetch('https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/'+vin+'?format=json');
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const x=((await r.json()).Results||[])[0]||{};
+  D.decoded={vin,make:x.Make||'',model:x.Model||'',year:x.ModelYear||'',disp:x.DisplacementL||'',partial:x.ErrorCode!=='0'||!x.Model,at:now()};
+  log('VIN décodé via NHTSA : '+([D.decoded.make,D.decoded.model,D.decoded.year].filter(Boolean).join(' ')||'aucune donnée')+(D.decoded.partial?' (partiel)':'')+'. Non utilisé pour valider la compatibilité.');
+  renderDecoded();
+ }catch(e){toast('NHTSA injoignable (hors ligne ?).','bad')}
+ finally{b.disabled=false}
+}
+async function api(path){
+ const base=(cfg.apiBase||'').replace(/\/+$/,'');
+ const ctrl=new AbortController(),t=setTimeout(()=>ctrl.abort(),9000);
+ try{
+  const r=await fetch(base+path,{signal:ctrl.signal,headers:{Accept:'application/json',...(cfg.apiToken?{Authorization:'Bearer '+cfg.apiToken}:{})}});
+  const j=await r.json().catch(()=>({}));
+  return r.ok?j:{error:j.error||('HTTP '+r.status)};
+ }catch(e){return{error:e.name==='AbortError'?'Délai dépassé':'Injoignable (réseau ou CORS)'}}
+ finally{clearTimeout(t)}
+}
+async function runApi(){
+ if(!cfg.apiBase){toast('Renseigne d’abord l’URL du backend.','bad');return}
+ const vin=F('vin').toUpperCase();
+ if(!isVin(vin)){toast('Saisis d’abord un VIN valide (17 caractères, sans I, O, Q).','bad');return}
+ const c=D.candidates.find(x=>x.role==='OE')||D.candidates[0];const ref=c?c.ref:'';
+ const q=encodeURIComponent,b=$('apiRun');b.disabled=true;b.textContent='Interrogation…';
+ try{
+  const none=m=>Promise.resolve({error:m});
+  const [v,o,e,s,d]=await Promise.all([
+   api('/verify/vehicle?vin='+q(vin)),
+   ref?api(`/verify/oe?vin=${q(vin)}&oe=${q(ref)}`):none('Aucune référence candidate'),
+   ref?api('/verify/equivalents?oe='+q(ref)):none('Aucune référence candidate'),
+   ref?api('/verify/stock?oe='+q(ref)):none('Aucune référence candidate'),
+   ref?api('/verify/delay?oe='+q(ref)):none('Aucune référence candidate')]);
+  D.checks={at:now(),ref,vin,rows:[['Véhicule',v],['Référence OE',o],['Équivalents',e],['Stock',s],['Délai',d]]};
+  setAuto('vin',v.state==='ok'&&/^TecDoc/.test(v.status||''),v.status);
+  setAuto('oe',o.state==='ok',o.status);
+  setAuto('stock',s.state==='ok'&&(d.state==='ok'||d.state==='info'),(s.status||'')+' / '+(d.status||''));
+  if(Object.values(D.rules).some(r=>r.on))D.rulesVin=vin;
+  log('Backend interrogé pour la référence « '+(ref||'—')+' » : '+D.checks.rows.map(([k,r])=>k+'='+(r.error?'indisponible':(r.state||'?'))).join(', ')+'.');
+  renderAll();
+ }finally{b.disabled=false;b.textContent='Interroger le backend'}
+}
+
+/* ---------- assistant de saisie : analyse locale par mots-clés, aucun appel réseau ---------- */
+const NL_MAP={plate:'plate',vin:'vin',brand:'make',model:'model',year:'year',engine:'engine',fuel:'fuel',tires:'tyres',request:'request'};
+const NL_LABELS={plate:'Immatriculation',vin:'VIN',brand:'Marque',model:'Modèle',year:'Année',engine:'Code moteur',fuel:'Carburant / puissance',tires:'Pneus',request:'Demande client',family:'Famille'};
+const BRANDS=['Renault','Peugeot','Citroën','Dacia','Volkswagen','Audi','Seat','Skoda','BMW','Mercedes','Opel','Ford','Fiat','Toyota','Nissan','Hyundai','Kia','Volvo','Mini','Alfa Romeo','Suzuki','Honda','Mazda','Mitsubishi','Smart','Jeep','Land Rover','DS'];
+const MODEL_STOP=new Set(['plaque','vin','moteur','pneus','pneu','annee','immatriculation','de','pour','du','la','le','les','piece','pieces','avec','sans']);
+const FAM_WORDS={
+ freins:['plaquette','disque','etrier','frein','tambour','machoire'],
+ distribution:['courroie','distribution','galet','pompe a eau','tendeur'],
+ embrayage:['embrayage','volant moteur','butee'],
+ suspension:['amortisseur','ressort','rotule','triangle','silentbloc','biellette','coupelle','barre stabilisatrice'],
+ eclairage:['phare','feu ','ampoule','optique','clignotant','antibrouillard'],
+ electrique:['batterie','alternateur','demarreur','capteur','sonde','bobine','bougie']
+};
+const norm=s=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+function nlParse(text){
+ const f={},warn=[];let t=' '+text.replace(/\s+/g,' ')+' ';
+ // VIN
+ const cand=[...t.matchAll(/\b[A-Z0-9]{17}\b/gi)].map(m=>m[0].toUpperCase()).filter(x=>/\d/.test(x));
+ const good=cand.find(isVin);
+ if(good){f.vin=good;t=t.replace(new RegExp(good,'i'),' ')}
+ else if(cand.length){
+  warn.push('« '+cand[0]+' » ressemble à un VIN mais contient I, O ou Q (interdits). Vérifier 0/O et 1/I sur la carte grise (champ E).');
+  t=t.replace(new RegExp(cand[0],'i'),' ');
+ }
+ // Plaque SIV (lettres I, O, U exclues)
+ const p=t.match(/\b([A-HJ-NP-TV-Z]{2})[\s-]?(\d{3})[\s-]?([A-HJ-NP-TV-Z]{2})\b/i);
+ if(p){f.plate=(p[1]+'-'+p[2]+'-'+p[3]).toUpperCase();t=t.replace(p[0],' ')}
+ // Pneus
+ const tire=t.match(/\b(\d{3})\s*\/\s*(\d{2})\s*(?:R|ZR)?\s*(\d{2})\b/i);
+ if(tire){f.tires=tire[1]+'/'+tire[2]+' R'+tire[3];t=t.replace(tire[0],' ')}
+ // Code moteur (lettre-chiffre-lettre + 3 chiffres) et cylindrée/motorisation
+ const eng=t.match(/\b([A-Z]\d[A-Z])[\s-]?(\d{3})\b/i);
+ if(eng){f.engine=(eng[1]+eng[2]).toUpperCase();t=t.replace(eng[0],' ')}
+ const disp=t.match(/\b\d[.,]\d\s?(?:dci|hdi|tdi|cdti|tce|tsi|tfsi|jtd|crdi|bluehdi|puretech|vti|thp|tdci)\b/i);
+ if(disp){f.fuel=disp[0].replace(',','.').trim();t=t.replace(disp[0],' ')}
+ // Année
+ const y=t.match(/\b(19[89]\d|20[0-3]\d)\b/);
+ if(y)f.year=y[1];
+ // Marque / modèle (modèle pris dans le texte d'origine, accents conservés)
+ const nt=norm(t);
+ const brand=BRANDS.find(b=>new RegExp('\\b'+norm(b)+'\\b').test(nt));
+ if(brand){
+  f.brand=brand;
+  const nb=norm(brand),m=new RegExp('\\b'+nb+'\\b').exec(nt);
+  const src=nt.length===t.length?t:nt;
+  const after=src.slice(m.index+nb.length).trim();
+  const mm=after.match(/^([\p{L}\d][\p{L}\d-]*(?:\s+(?:i{1,3}|iv|v|\d)(?![\p{L}\d]))?)/iu);
+  if(mm&&!MODEL_STOP.has(norm(mm[1].split(' ')[0]))&&!/^(19|20)\d\d$/.test(mm[1]))f.model=mm[1];
+ }
+ // Famille, pièce demandée
+ const fams=Object.entries(FAM_WORDS).map(([k,ws])=>({k,hits:ws.filter(w=>nt.includes(w))})).filter(x=>x.hits.length).sort((a,b)=>b.hits.length-a.hits.length);
+ if(fams.length){
+  if(fams.length>1&&fams[0].hits.length===fams[1].hits.length){
+   warn.push('Plusieurs familles possibles ('+fams.map(x=>FAMILIES[x.k].label).join(', ')+'). Choisir manuellement en section 4.');
+  }else{
+   f.family=fams[0].k;
+   const spec=fams[0].hits.filter(h=>h!=='frein');
+   const names=(spec.length?spec:fams[0].hits).map(h=>h.trim());
+   const pos=/\b(avant|av)\b/.test(nt)?' avant':(/\b(arriere|ar)\b/.test(nt)?' arrière':'');
+   const side=/\bgauche\b/.test(nt)?' gauche':(/\bdroite?\b/.test(nt)?' droite':'');
+   f.request=names.join(', ')+pos+side;
+  }
+ }
+ return{f,warn};
+}
+function nlCur(k){return k==='family'?D.family:$(NL_MAP[k]).value.trim()}
+function nlShow(k,v){return k==='family'?(FAMILIES[v]?FAMILIES[v].label:v):v}
+function nlApply(f,keys,over){
+ const done=[],skipped=[];
+ keys.forEach(k=>{
+  const val=f[k],cur=nlCur(k);
+  const differs=cur&&String(cur).toUpperCase()!==String(val).toUpperCase();
+  if(cur&&!differs)return;
+  if(differs&&!over){skipped.push(NL_LABELS[k]);return}
+  if(k==='family'){D.family=val;D.checked=[];persist();renderFamily();renderDecision()}
+  else $(NL_MAP[k]).value=val;
+  done.push(NL_LABELS[k]);
+ });
+ syncFields();
+ if(done.length)log('Assistant de saisie : champs renseignés : '+done.join(', ')+'. Aucune règle validée.');
+ return{done,skipped};
+}
+function nlRender(res,msg){
+ const box=$('nlResult');box.textContent='';
+ const f=res.f,keys=Object.keys(NL_LABELS).filter(k=>f[k]);
+ const add=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;e.textContent=txt;box.appendChild(e);return e};
+ if(!keys.length&&!res.warn.length){add('p','sub','Rien de reconnu. Indique au moins un VIN, une plaque ou une pièce.');return}
+ if(keys.length){
+  const tb=document.createElement('table');tb.className='nltable';
+  keys.forEach(k=>{
+   const tr=tb.insertRow();tr.insertCell().textContent=NL_LABELS[k];tr.insertCell().textContent=nlShow(k,f[k]);
+   const c=tr.insertCell(),cur=nlCur(k);
+   if(!cur){c.textContent='à vérifier'}
+   else if(String(cur).toUpperCase()===String(f[k]).toUpperCase()){c.textContent='identique';c.className='nl-ok'}
+   else{c.textContent='champ déjà rempli : '+nlShow(k,cur);c.className='nl-warn'}
+  });
+  box.appendChild(tb);
+ }
+ res.warn.forEach(w=>add('p','nl-bad','⚠ '+w));
+ const qs=[];
+ if(!f.vin)qs.push('VIN (17 caractères, carte grise champ E) : sans lui, aucune règle ne peut être validée.');
+ if(f.family)famItems(f.family).forEach(i=>qs.push(i));else qs.push('Famille de pièce à choisir (section 4).');
+ add('p','sub','À demander ou vérifier avant toute commande (repris de la section 4) :').style.marginBottom='0';
+ const ul=document.createElement('ul');qs.forEach(x=>{const li=document.createElement('li');li.textContent=x;ul.appendChild(li)});box.appendChild(ul);
+ if(keys.length){
+  const row=document.createElement('div');row.className='actions';
+  const btn=document.createElement('button');btn.className='primary';btn.textContent='Appliquer au dossier';
+  const lab=document.createElement('label');lab.style.cssText='display:flex;gap:8px;align-items:center;margin:0';
+  const cb=document.createElement('input');cb.type='checkbox';cb.style.width='auto';
+  lab.append(cb,' Écraser les champs déjà remplis');
+  btn.onclick=()=>{
+   const r=nlApply(f,keys,cb.checked);
+   nlRender(res,(r.done.length?'Renseigné : '+r.done.join(', ')+'. ':'Rien renseigné. ')+(r.skipped.length?'Non modifié (déjà rempli) : '+r.skipped.join(', ')+'. ':'')+'Aucune règle de décision n’a été validée.');
+  };
+  row.append(btn,lab);box.appendChild(row);
+ }
+ if(msg)add('p','sub',msg);
+}
+
+/* ---------- événements ---------- */
+function wire(){
+ FIELDS.forEach(k=>$(k).addEventListener('input',debounce(syncFields,300)));
+ $('vin').addEventListener('blur',()=>{$('vin').value=$('vin').value.replace(/\s/g,'').toUpperCase();syncFields()});
+
+ $('dossierSel').onchange=e=>{syncFields();persist();db.current=e.target.value;D=db.dossiers[db.current];loadFields();renderAll();$('saveMsg').textContent=''};
+ $('newDossier').onclick=()=>{syncFields();D=blank();db.dossiers[D.id]=D;db.current=D.id;loadFields();log('Nouveau dossier créé.');renderAll()};
+ $('delDossier').onclick=()=>{
+  if(!confirm('Supprimer définitivement ce dossier ?'))return;
+  delete db.dossiers[db.current];
+  if(!Object.keys(db.dossiers).length){const n=blank();db.dossiers[n.id]=n}
+  db.current=Object.keys(db.dossiers)[0];D=db.dossiers[db.current];loadFields();persist();renderAll();toast('Dossier supprimé.')};
+
+ $('save').onclick=()=>{syncFields();if(persist()){$('saveMsg').textContent='Dossier enregistré à '+now()+'.';log('Dossier enregistré localement.')}};
+ $('export').onclick=()=>{syncFields();const p=problems();
+  download('PIECE-SURE-AI-'+(F('caseid')||'dossier')+'.json',JSON.stringify({application:'PIÈCE-SÛRE AI',version:2,exportedAt:now(),decision:{bloquee:p.length>0,manque:p},dossier:D},null,2),'application/json');
+  log('Export JSON du dossier.')};
+ $('print').onclick=()=>{syncFields();log('Impression / PDF lancé.');window.print()};
+ $('reset').onclick=()=>{
+  if(!confirm('Réinitialiser les champs, références et validations de ce dossier ? Sources et journal conservés.'))return;
+  const keepId=D.fields.caseid;
+  D.rules={};D.rulesVin='';D.checks=null;D.decoded=null;D.candidates=[];D.family='';D.checked=[];
+  FIELDS.forEach(k=>$(k).value='');$('caseid').value=keepId;$('date').value=today();
+  syncFields();log('Dossier réinitialisé.');renderAll()};
+
+ $('rules').onchange=e=>{
+  const id=e.target.dataset.rule;if(!id)return;
+  const r=RULES.find(x=>x.id===id);
+  if(!e.target.checked){D.rules[id]={on:false};log('Validation retirée : '+r.label);renderAll();return}
+  if(!isVin(F('vin'))){e.target.checked=false;toast('Saisis d’abord un VIN valide (17 caractères, sans I, O, Q).','bad');return}
+  const src=D.sources.find(s=>r.types.includes(s.type)&&s.finding);
+  if(!src){e.target.checked=false;toast('Ajoute d’abord au registre une source de type « '+r.types.join(' » ou « ')+' » avec ce qu’elle confirme.','bad');return}
+  if(!confirm('La source « '+(src.title||src.url||'sans titre')+' » établit-elle bien : '+r.label+' ?')){e.target.checked=false;return}
+  D.rules[id]={on:true,by:'manuel',at:now(),note:src.title||src.url||'source',srcId:src.id};
+  D.rulesVin=F('vin').toUpperCase();
+  log('Validation manuelle : '+r.label+' (source : '+(src.title||src.url||'sans titre')+').');renderAll()};
+
+ $('famSel').onchange=e=>{D.family=e.target.value;D.checked=[];persist();renderFamily();renderDecision()};
+ $('famList').onchange=e=>{const id=e.target.dataset.fam;if(!id)return;
+  D.checked=e.target.checked?[...new Set([...D.checked,id])]:D.checked.filter(x=>x!==id);persist();renderDecision()};
+
+ $('addCand').onclick=()=>{
+  const ref=F('candRef');
+  if(ref.replace(/[^A-Za-z0-9]/g,'').length<5){toast('Référence trop courte.','bad');return}
+  D.candidates.push({ref,brand:F('candBrand'),role:$('candRole').value,note:F('candNote'),sourceId:''});
+  ['candRef','candBrand','candNote'].forEach(k=>$(k).value='');
+  log('Référence candidate ajoutée : '+ref+' (non validée).');renderAll()};
+ $('candidates').onclick=e=>{const b=e.target.closest('[data-cand-del]');if(!b)return;
+  const c=D.candidates.splice(+b.dataset.candDel,1)[0];log('Référence candidate supprimée : '+c.ref);renderAll()};
+ $('candidates').onchange=e=>{const i=e.target.dataset.candSrc;if(i===undefined)return;
+  const c=D.candidates[+i];c.sourceId=e.target.value;
+  log(c.sourceId?'Référence '+c.ref+' rattachée à une source.':'Référence '+c.ref+' détachée de sa source.');renderAll()};
+
+ $('addSource').onclick=()=>{
+  const url=F('sourceUrl');
+  if(url){try{if(!['http:','https:'].includes(new URL(url).protocol))throw 0}catch(e){toast('Saisis une URL http ou https valide.','bad');return}}
+  const s={id:uid(),title:F('sourceTitle'),url,type:$('sourceType').value,finding:F('sourceFinding'),date:now()};
+  if(!s.title&&!s.url&&!s.finding){toast('Ajoute au moins un titre, une URL ou une observation.','bad');return}
+  D.sources.unshift(s);['sourceTitle','sourceUrl','sourceFinding'].forEach(k=>$(k).value='');
+  log('Source consignée : '+(s.title||s.url||'observation')+'. Non vérifiée automatiquement.');renderAll()};
+ $('sourceList').onclick=e=>{const b=e.target.closest('[data-rm-src]');if(!b)return;
+  const s=D.sources[+b.dataset.rmSrc];
+  if(!confirm('Supprimer cette source ? Les références et validations qui s’appuient dessus seront détachées.'))return;
+  D.sources.splice(+b.dataset.rmSrc,1);
+  D.candidates.forEach(c=>{if(c.sourceId===s.id)c.sourceId=''});
+  Object.keys(D.rules).forEach(k=>{if(D.rules[k].by==='manuel'&&D.rules[k].srcId===s.id)D.rules[k]={on:false}});
+  log('Source supprimée : '+(s.title||s.url||'sans titre')+'.');renderAll()};
+
+ $('files').onchange=async e=>{
+  for(const f of e.target.files){
+   const en={name:f.name,size:f.size,type:f.type||'type inconnu',text:null};
+   if(/\.(txt|csv|json|xml|html?|md)$/i.test(f.name)&&f.size<2e6){try{en.text=await f.text()}catch(x){}}
+   files.push(en);log('Document ajouté à la session : '+f.name+'.');
+  }
+  renderFiles();e.target.value=''};
+ $('fileList').onclick=e=>{const b=e.target.closest('[data-rm-file]');if(!b)return;files.splice(+b.dataset.rmFile,1);renderFiles()};
+ $('clearFiles').onclick=()=>{files=[];renderFiles();log('Liste des documents vidée.')};
+
+ $('exportLog').onclick=()=>{const p=problems();
+  download('PIECE-SURE-AI-journal.txt',D.logs.slice().reverse().join('\n')+'\n\nDécision actuelle : '+(p.length?'COMMANDE BLOQUÉE — manque : '+p.join(' ; '):'vérifications complètes (validation humaine requise)')+'\n','text/plain;charset=utf-8')};
+ $('clearLog').onclick=()=>{if(confirm('Effacer le journal de traçabilité ?')){D.logs=[];persist();renderLog()}};
+
+ $('decodeBtn').onclick=decode;$('apiRun').onclick=runApi;
+ $('apiSave').onclick=()=>{
+  const u=F('apiBase').replace(/\/+$/,'');
+  if(u&&!/^https?:\/\//i.test(u)){toast('L’URL doit commencer par http:// ou https://','bad');return}
+  cfg.apiBase=u;cfg.apiToken=F('apiToken');
+  try{localStorage.setItem(CFG,JSON.stringify(cfg))}catch(e){toast('Stockage bloqué.','bad');return}
+  renderMetrics();log('Configuration du backend '+(u?'enregistrée.':'effacée.'));toast('Configuration enregistrée.','ok')};
+ $('apiTest').onclick=async()=>{
+  const base=F('apiBase').replace(/\/+$/,'');if(!base){toast('Renseigne l’URL.','bad');return}
+  try{const j=await (await fetch(base+'/health')).json();toast('Backend joignable · TecDoc '+(j.tecdoc?'actif':'non configuré'),'ok')}
+  catch(e){toast('Backend injoignable (URL ou CORS).','bad')}};
+
+ $('nlAnalyze').onclick=()=>{
+  const txt=$('nlInput').value.trim();
+  if(!txt){$('nlResult').textContent='Saisis une description.';return}
+  nlRender(nlParse(txt));
+ };
+ $('nlClear').onclick=()=>{$('nlInput').value='';$('nlResult').textContent=''};
+}
+
+/* ---------- init ---------- */
+loadAll();loadFields();
+$('apiBase').value=cfg.apiBase||'';$('apiToken').value=cfg.apiToken||'';
+wire();renderAll();
+if(!D.logs.length)log('Dossier prêt. Aucune base professionnelle interrogée.');
+setInterval(syncFields,1500); /* détecte les remplissages faits par connecteur-plaque.js */
+})();
+</script>
+<script src="connecteur-plaque.js?v=7"></script>
+</body></html>
+```
+
+## Quatre modifications dans `connecteur-plaque.js`
+
+**1. Placement de la carte.** Dans `installerCarte`, remplace le premier bloc `if (h2 && h2.parentElement) { … }` par ceci. La carte devient une rangée pleine largeur sous « Statut de vérification », au lieu d'être serrée dans la colonne étroite :
+```js
+if (h2 && h2.parentElement) {
+  var sec = (h2.closest && h2.closest("section")) || h2.parentElement;
+  sec.parentElement.insertBefore(carte, sec.nextSibling);
+  emplacementCarte = "sous la section « Statut de vérification » (pleine largeur)";
+} else if (h1 && h1.parentElement && h1.parentElement.parentElement) {
+```
+Le `else if` suivant reste tel quel.
+
+**2. Style.** Ajoute ces deux lignes au tableau `CSS`, avec une virgule après l'élément précédent :
+```js
+"#pc-carte{grid-column:1/-1}",
+"@media print{#pc-carte{display:none!important}}"
+```
+
+**3. Événements au remplissage**, dans `remplirChampsVides` :
+```js
+if (c) {
+  c.value = plan[j].valeur;
+  c.dispatchEvent(new Event("input", { bubbles: true }));
+  c.dispatchEvent(new Event("change", { bubbles: true }));
+  remplis.push(plan[j].label);
+}
+```
+
+**4. Plaque reprise du dossier**, dans `interroger()` :
+```js
+var brut = $("pc-plaque").value.trim() || String(($("plate") || {}).value || "").trim();
+```
