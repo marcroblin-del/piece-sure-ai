@@ -463,7 +463,12 @@
     var remplis = [];
     for (var j = 0; j < plan.length; j++) {
       var c = $(plan[j].id);
-      if (c) { c.value = plan[j].valeur; remplis.push(plan[j].label); }
+          if (c) {
+      c.value = plan[j].valeur;
+      c.dispatchEvent(new Event("input", { bubbles: true }));
+      c.dispatchEvent(new Event("change", { bubbles: true }));
+      remplis.push(plan[j].label);
+    }
     }
 
     var texteRapport =
