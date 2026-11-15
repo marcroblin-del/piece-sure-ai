@@ -636,37 +636,4 @@ setInterval(syncFields,1500); /* détecte les remplissages faits par connecteur-
 </script>
 <script src="connecteur-plaque.js?v=7"></script>
 </body></html>
-```
 
-## Quatre modifications dans `connecteur-plaque.js`
-
-**1. Placement de la carte.** Dans `installerCarte`, remplace le premier bloc `if (h2 && h2.parentElement) { … }` par ceci. La carte devient une rangée pleine largeur sous « Statut de vérification », au lieu d'être serrée dans la colonne étroite :
-```js
-if (h2 && h2.parentElement) {
-  var sec = (h2.closest && h2.closest("section")) || h2.parentElement;
-  sec.parentElement.insertBefore(carte, sec.nextSibling);
-  emplacementCarte = "sous la section « Statut de vérification » (pleine largeur)";
-} else if (h1 && h1.parentElement && h1.parentElement.parentElement) {
-```
-Le `else if` suivant reste tel quel.
-
-**2. Style.** Ajoute ces deux lignes au tableau `CSS`, avec une virgule après l'élément précédent :
-```js
-"#pc-carte{grid-column:1/-1}",
-"@media print{#pc-carte{display:none!important}}"
-```
-
-**3. Événements au remplissage**, dans `remplirChampsVides` :
-```js
-if (c) {
-  c.value = plan[j].valeur;
-  c.dispatchEvent(new Event("input", { bubbles: true }));
-  c.dispatchEvent(new Event("change", { bubbles: true }));
-  remplis.push(plan[j].label);
-}
-```
-
-**4. Plaque reprise du dossier**, dans `interroger()` :
-```js
-var brut = $("pc-plaque").value.trim() || String(($("plate") || {}).value || "").trim();
-```
