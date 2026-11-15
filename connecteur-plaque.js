@@ -223,12 +223,6 @@
       note.hidden = false;
     });
     $("pc-remplir").addEventListener("click", remplirChampsVides);
-     if (c) {
-  c.value = plan[j].valeur;
-  c.dispatchEvent(new Event("input", { bubbles: true }));
-  c.dispatchEvent(new Event("change", { bubbles: true }));
-  remplis.push(plan[j].label);
-}
     $("pc-diagnostic").addEventListener("click", afficherDiagnostic);
     $("pc-copier-diag").addEventListener("click", function () {
       copier($("pc-diag-sortie").textContent, this);
