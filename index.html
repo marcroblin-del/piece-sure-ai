@@ -334,7 +334,7 @@ function renderLinks(){
  const c=D.candidates.find(x=>x.role==='OE')||D.candidates[0];const ref=c?c.ref:'';
  const veh=[F('make'),F('model'),F('year'),F('engine')].filter(Boolean).join(' ');
  const g=s=>'https://www.google.com/search?q='+encodeURIComponent(s);
- const L=[['NHTSA (VIN)',vin&&'https://vpic.nhtsa.dot.gov/decoder/Decoder?VIN=],
+  const L=[['NHTSA (VIN)',vin&&'https://vpic.nhtsa.dot.gov/decoder/Decoder?VIN='+vin],
   ['Fiche technique',veh&&g([F('make'),F('model'),F('year'),'auto-data fiche technique'].filter(Boolean).join(' '))],
   ['Recherche référence',ref&&g([ref,F('request')].join(' '))],
    ['Équipementiers',ref&&g(ref+' équivalent Bosch Brembo Valeo ZF')],
