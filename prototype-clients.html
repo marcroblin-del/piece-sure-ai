@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype clients — PIÈCE-SÛRE AI</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  :root {
+    color-scheme: light;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #17212b;
+    background: #f2f5f8;
+  }
+
+  body { margin: 0; }
+  .page { max-width: 1100px; margin: 0 auto; padding: 18px; }
+  header { margin-bottom: 16px; }
+  h1 { margin: 0 0 6px; font-size: 1.7rem; }
+  h2 { margin: 0 0 12px; font-size: 1.25rem; }
+  h3 { margin: 16px 0 8px; font-size: 1.05rem; }
+  h4 { margin: 4px 0 8px; }
+  p { line-height: 1.45; }
+  .muted, .help { color: #526171; font-size: .92rem; }
+  .principle { font-weight: 700; color: #174a70; }
+
+  .warning {
+    margin-top: 14px;
+    padding: 12px;
+    background: #fff4dd;
+    border-left: 6px solid #b36b00;
+    border-radius: 8px;
+    line-height: 1.45;
+  }
+
+  main { display: grid; gap: 16px; }
+  .card {
+    background: white;
+    border: 1px solid #d5dde5;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(20, 40, 60, .05);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    align-items: end;
+  }
+
+  label { display: block; font-weight: 600; font-size: .93rem; }
+  input, select, textarea {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid #aebbc8;
+    border-radius: 7px;
+    background: white;
+    color: #17212b;
+    font: inherit;
+  }
+
+  input[type="checkbox"] {
+    display: inline-block;
+    width: auto;
+    margin: 0 7px 0 0;
+  }
+
+  button {
+    min-height: 42px;
+    padding: 9px 13px;
+    border: 1px solid #075985;
+    border-radius: 8px;
+    background: #075985;
+    color: white;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+  }
+
+  button.secondary {
+    color: #174a70;
+    background: #f5f9fc;
+    border-color: #8ba6ba;
+  }
+
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  form > button { margin-top: 14px; }
+  .button-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  hr { border: 0; border-top: 1px solid #dce3e9; margin: 16px 0; }
+
+  .list { display: grid; gap: 8px; margin-top: 12px; }
+  .list-row, .record {
+    border: 1px solid #d5dde5;
+    border-radius: 9px;
+    padding: 12px;
+    background: #fff;
+  }
+
+  .list-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .list-row.active { border-color: #2673a5; background: #f1f8fc; }
+  .list-row button { flex: 0 0 auto; }
+  .record { margin-top: 12px; }
+  .record-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+  .badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    background: #e8f1f7;
+    color: #174a70;
+    font-size: .85rem;
+    font-weight: 700;
+  }
+
+  .subcard {
+    margin-top: 12px;
+    padding: 11px;
+    border: 1px solid #dce3e9;
+    border-radius: 8px;
+    background: #f9fbfc;
+  }
+
+  .item-row, .receive-item {
+    margin: 10px 0;
+    padding: 12px;
+    border: 1px solid #d5dde5;
+    border-radius: 8px;
+    background: #fbfcfd;
+  }
+
+  .item-row .remove-item { margin-top: 8px; }
+  .receive-item { background: white; }
+  .checkline { display: block; margin: 12px 0; font-weight: 600; }
+  .message-area { margin-top: 14px; }
+  textarea { min-height: 150px; resize: vertical; }
+  .notice-line { color: #7a4300; font-weight: 650; }
+  .status { min-height: 1.5em; margin: 12px 0 0; color: #174a70; font-weight: 600; }
+
+  @media (max-width: 600px) {
+    .page { padding: 12px; }
+    .card { padding: 13px; }
+    .list-row { align-items: flex-start; flex-direction: column; }
+    h1 { font-size: 1.45rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>PIÈCE-SÛRE AI — prototype clients</h1>
+    <p>Clients · véhicules associés · achats · commandes fournisseur · livraisons</p>
+    <div class="warning">
+      <strong>Prototype de démonstration — ne saisis aucune vraie donnée client.</strong>
+      Les informations restent dans la mémoire de cette page et ne sont pas sauvegardées par ce prototype.
+      Il n’y a pas d’envoi de SMS ou de courriel. Utilise uniquement des données fictives pour les essais.
+    </div>
+    <p class="principle">NE PAS DEVINER → VÉRIFIER → DÉCIDER → TRACER</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Fiches clients</h2>
+      <form id="clientForm" autocomplete="off">
+        <div class="form-grid">
+          <label for="clientType">Type de client
+            <select id="clientType" required>
+              <option value="particulier">Particulier</option>
+              <option value="professionnel">Professionnel</option>
+            </select>
+          </label>
+
+          <label for="clientName"><span id="clientNameLabel">Nom et prénom</span>
+            <input id="clientName" type="text" maxlength="100" required>
+          </label>
+
+          <div id="contactWrap" hidden>
+            <label for="contactName">Personne à contacter (facultatif)
+              <input id="contactName" type="text" maxlength="100">
+            </label>
+          </div>
+
+          <label for="clientPhone">Téléphone (facultatif)
+            <input id="clientPhone" type="tel" maxlength="40">
+          </label>
+
+          <label for="clientEmail">Courriel (facultatif)
+            <input id="clientEmail" type="email" maxlength="120">
+          </label>
+
+          <label for="preferredContact">Moyen de contact préféré
+            <select id="preferredContact">
+              <option value="none">Non précisé</option>
+              <option value="phone">Téléphone</option>
+              <option value="sms">SMS</option>
+              <option value="email">Courriel</option>
+            </select>
+          </label>
+        </div>
+        <button type="submit">Créer la fiche client</button>
+      </form>
+
+      <hr>
+
+      <label for="activeClient">Client actuellement sélectionné
+        <select id="activeClient">
+          <option value="">— Aucun client —</option>
+        </select>
+      </label>
+
+      <div id="clientList" class="list">
+        <p class="muted">Aucune fiche client. Crée une fiche fictive pour commencer.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Véhicules associés</h2>
+      <p class="help">Un client peut avoir plusieurs véhicules. Le prototype ne demande ni plaque ni VIN.</p>
+
+      <form id="vehicleForm" autocomplete="off" hidden>
+        <div class="form-grid">
+          <label for="vehicleMake">Marque
+            <input id="vehicleMake" type="text" maxlength="60" required>
+          </label>
+          <label for="vehicleModel">Modèle
+            <input id="vehicleModel" type="text" maxlength="80" required>
+          </label>
+          <label for="vehicleYear">Année (facultative)
+            <input id="vehicleYear" type="number" min="1886" max="2100" step="1">
+          </label>
+        </div>
+        <button type="submit">Associer ce véhicule au client</button>
+      </form>
+
+      <div id="vehicleList" class="list">
+        <p class="muted">Sélectionne un client pour consulter ou ajouter ses véhicules.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Achats et commandes client</h2>
+      <p class="help">
+        Une fiche peut contenir plusieurs articles. Le suivi de la commande fournisseur,
+        la disponibilité pour le client et la livraison restent distincts.
+      </p>
+
+      <form id="orderForm" autocomplete="off" hidden>
+        <p>Client sélectionné : <strong id="orderClientName"></strong></p>
+
+        <div class="form-grid">
+          <label for="orderKind">Type d’enregistrement
+            <select id="orderKind">
+              <option value="command">Commande à suivre</option>
+              <option value="history">Achat déjà réalisé — historique</option>
+            </select>
+          </label>
+
+          <label for="orderDate">Date
+            <input id="orderDate" type="date" required>
+          </label>
+
+          <label for="orderVehicle">Véhicule associé (facultatif)
+            <select id="orderVehicle">
+              <option value="">Aucun — stock ou non associé</option>
+            </select>
+          </label>
+        </div>
+
+        <h3>Articles de l’achat ou de la commande</h3>
+        <div id="itemRows"></div>
+        <button id="addItem" class="secondary" type="button">Ajouter un article</button>
+
+        <div id="externalWrap">
+          <label class="checkline" for="externalFlag">
+            <input id="externalFlag" type="checkbox">
+            Commande passée auprès d’un fournisseur externe
+          </label>
+
+          <div id="supplierFields" class="subcard" hidden>
+            <h4>Fournisseur externe</h4>
+            <div class="form-grid">
+              <label for="supplierName">Nom du fournisseur
+                <input id="supplierName" type="text" maxlength="100">
+              </label>
+              <label for="supplierOrderNo">Numéro de commande fournisseur (facultatif)
+                <input id="supplierOrderNo" type="text" maxlength="80">
+              </label>
+              <label for="supplierExpected">Date d’arrivée prévue (facultative)
+                <input id="supplierExpected" type="date">
+              </label>
+            </div>
+            <p class="help">
+              La quantité commandée au fournisseur se saisit pour chaque article.
+              Une réception partielle peut être enregistrée ensuite.
+            </p>
+          </div>
+        </div>
+
+        <h3>Mode de remise ou de livraison</h3>
+        <div class="form-grid">
+          <label for="deliveryMode">Mode prévu
+            <select id="deliveryMode">
+              <option value="pickup">Retrait au magasin</option>
+              <option value="store">Livraison par le magasin</option>
+              <option value="direct">Envoi direct du fournisseur au client</option>
+            </select>
+          </label>
+        </div>
+
+        <div id="deliveryExtra" class="form-grid" hidden>
+          <label for="deliveryDetail">Adresse ou consigne (facultatif — données fictives seulement)
+            <input id="deliveryDetail" type="text" maxlength="160">
+          </label>
+          <label for="deliveryCarrier">Transporteur (facultatif)
+            <input id="deliveryCarrier" type="text" maxlength="80">
+          </label>
+          <label for="deliveryTracking">Numéro de suivi (facultatif)
+            <input id="deliveryTracking" type="text" maxlength="100">
+          </label>
+        </div>
+
+        <button type="submit">Ajouter à l’historique du client</button>
+      </form>
+
+      <div id="orderList" class="list">
+        <p class="muted">Sélectionne un client pour afficher son historique.</p>
+      </div>
+
+      <div id="messagePanel" class="subcard message-area" hidden>
+        <h3>Aperçu de message — aucun envoi</h3>
+        <p id="messageMeta" class="help"></p>
+        <textarea id="messageText" readonly aria-label="Aperçu du message"></textarea>
+        <div class="button-row">
+          <button id="copyMessage" class="secondary" type="button">Copier l’aperçu</button>
+        </div>
+        <p id="copyStatus" class="help" aria-live="polite">
+          Cet aperçu ne contacte pas le client. Relis-le et envoie-le toi-même, si nécessaire.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Prototype isolé : aucune sauvegarde, aucun appel réseau, aucun envoi de message. */
+  var state = { clients: [], orders: [] };
+  var selectedClientId = '';
+  var serial = 0;
+
+  function $(id) { return document.getElementById(id); }
+
+  function makeId(prefix) {
+    serial += 1;
+    return prefix + '-' + Date.now() + '-' + serial;
+  }
+
+  function esc(value) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function (ch) {
+      return map[ch];
+    });
+  }
+
+  function setStatus(text) {
+    $('status').textContent = text || '';
+  }
+
+  function activeClient() {
+    for (var i = 0; i < state.clients.length; i++) {
+      if (state.clients[i].id === selectedClientId) return state.clients[i];
+    }
+    return null;
+  }
+
+  function findClient(id) {
+    for (var i = 0; i < state.clients.length; i++) {
+      if (state.clients[i].id === id) return state.clients[i];
+    }
+    return null;
+  }
+
+  function contactLabel(value) {
+    var labels = {
+      none: 'Non précisé',
+      phone: 'Téléphone',
+      sms: 'SMS',
+      email: 'Courriel'
+    };
+    return labels[value] || 'Non précisé';
+  }
+
+  function dateLabel(value) {
+    if (!value) return '—';
+    var bits = value.split('-');
+    if (bits.length === 3) return bits[2] + '/' + bits[1] + '/' + bits[0];
+    return value;
+  }
+
+  function formatPrice(value) {
+    if (value === '' || value == null) return '';
+    var n = Number(value);
+    if (!isFinite(n)) return '';
+    return n.toFixed(2).replace('.', ',') + ' €';
+  }
+
+  function updateClientType() {
+    var pro = $('clientType').value === 'professionnel';
+    $('clientNameLabel').textContent = pro ? 'Nom de l’entreprise' : 'Nom et prénom';
+    $('contactWrap').hidden = !pro;
+    if (!pro) $('contactName').value = '';
+  }
+
+  function addItemRow() {
+    var row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML =
+      '<div class="form-grid">' +
+        '<label>Pièce ou article' +
+          '<input class="item-name" type="text" maxlength="120" required>' +
+        '</label>' +
+        '<label>Référence (facultative)' +
+          '<input class="item-reference" type="text" maxlength="100">' +
+        '</label>' +
+        '<label>Quantité client' +
+          '<input class="item-quantity" type="number" min="1" step="1" required>' +
+        '</label>' +
+        '<label>Prix unitaire (facultatif)' +
+          '<input class="item-price" type="number" min="0" step="0.01">' +
+        '</label>' +
+        '<label class="supplier-qty-wrap" hidden>Quantité commandée au fournisseur' +
+          '<input class="item-supplier-quantity" type="number" min="1" step="1">' +
+        '</label>' +
+      '</div>' +
+      '<button class="secondary remove-item" type="button">Retirer cet article</button>';
+    $('itemRows').appendChild(row);
+    updateOrderOptions();
+  }
+
+  function updateOrderOptions() {
+    var history = $('orderKind').value === 'history';
+    if (history) $('externalFlag').checked = false;
+
+    $('externalWrap').hidden = history;
+    $('externalFlag').disabled = history;
+
+    var external = !history && $('externalFlag').checked;
+    $('supplierFields').hidden = !external;
+
+    var supplierInputs = $('supplierFields').querySelectorAll('input');
+    for (var i = 0; i < supplierInputs.length; i++) {
+      supplierInputs[i].disabled = !external;
+    }
+    $('supplierName').required = external;
+
+    var rows = $('itemRows').querySelectorAll('.item-row');
+    for (var r = 0; r < rows.length; r++) {
+      var wrap = rows[r].querySelector('.supplier-qty-wrap');
+      var input = rows[r].querySelector('.item-supplier-quantity');
+      wrap.hidden = !external;
+      input.disabled = !external;
+      input.required = external;
+    }
+
+    $('deliveryExtra').hidden = $('deliveryMode').value === 'pickup';
+  }
+
+  function renderClientList() {
+    var box = $('clientList');
+    if (!state.clients.length) {
+      box.innerHTML = '<p class="muted">Aucune fiche client. Crée une fiche fictive pour commencer.</p>';
+      return;
+    }
+
+    box.innerHTML = state.clients.map(function (c) {
+      var countOrders = state.orders.filter(function (o) {
+        return o.clientId === c.id;
+      }).length;
+      var typeText = c.type === 'professionnel' ? 'Professionnel' : 'Particulier';
+      var contact = c.contactName ? ' · Contact : ' + esc(c.contactName) : '';
+      var phone = c.phone ? ' · Tél. : ' + esc(c.phone) : '';
+      var email = c.email ? ' · ' + esc(c.email) : '';
+
+      return '<div class="list-row ' + (c.id === selectedClientId ? 'active' : '') + '">' +
+        '<div><strong>' + esc(c.name) + '</strong><br>' +
+        '<span class="muted">' + typeText + contact +
+        ' · ' + c.vehicles.length + ' véhicule(s)' +
+        ' · ' + countOrders + ' achat(s)/commande(s)' +
+        phone + email +
+        ' · Contact préféré : ' + contactLabel(c.preferred) +
+        '</span></div>' +
+        '<button class="secondary" type="button" data-select-client="' + esc(c.id) + '">' +
+          (c.id === selectedClientId ? 'Sélectionné' : 'Choisir') +
+        '</button>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderVehicles() {
+    var c = activeClient();
+    $('vehicleForm').hidden = !c;
+
+    if (!c) {
+      $('vehicleList').innerHTML = '<p class="muted">Sélectionne un client pour consulter ou ajouter ses véhicules.</p>';
+      return;
+    }
+
+    if (!c.vehicles.length) {
+      $('vehicleList').innerHTML = '<p class="muted">Aucun véhicule associé à ce client pour le moment.</p>';
+      return;
+    }
+
+    $('vehicleList').innerHTML = c.vehicles.map(function (v) {
+      var year = v.year ? ' · ' + esc(v.year) : '';
+      return '<div class="list-row"><div><strong>' + esc(v.make) + ' ' + esc(v.model) +
+        '</strong><span class="muted">' + year + '</span></div></div>';
+    }).join('');
+  }
+
+  function renderOrderForm() {
+    var c = activeClient();
+    $('orderForm').hidden = !c;
+
+    if (!c) {
+      $('orderList').innerHTML = '<p class="muted">Sélectionne un client pour afficher son historique.</p>';
+      return;
+    }
+
+    $('orderClientName').textContent = c.name;
+    var options = '<option value="">Aucun — stock ou non associé</option>';
+    options += c.vehicles.map(function (v) {
+      var name = v.make + ' ' + v.model + (v.year ? ' (' + v.year + ')' : '');
+      return '<option value="' + esc(v.id) + '">' + esc(name) + '</option>';
+    }).join('');
+    $('orderVehicle').innerHTML = options;
+  }
+
+  function supplierLabel(o) {
+    var total = 0;
+    var received = 0;
+    for (var i = 0; i < o.items.length; i++) {
+      total += o.items[i].supplierQuantity;
+      received += o.items[i].received;
+    }
+    if (received >= total) return 'Réception complète';
+    if (received > 0) return 'Réception partielle';
+
+    var labels = {
+      waiting: 'À commander',
+      ordered: 'Commandée',
+      shipped: 'Expédiée'
+    };
+    return labels[o.supplier.stage] || 'À commander';
+  }
+
+  function renderSupplier(o) {
+    if (!o.supplier) {
+      return '<div class="subcard"><strong>Fournisseur externe :</strong> aucun enregistré pour cette fiche.</div>';
+    }
+
+    var orderAction = '';
+    if (o.supplier.stage === 'waiting') {
+      orderAction = '<button type="button" data-act="supplier-ordered" data-id="' + esc(o.id) +
+        '">Confirmer que la commande fournisseur est passée</button>';
+    } else if (o.supplier.stage === 'ordered') {
+      orderAction = '<button type="button" data-act="supplier-shipped" data-id="' + esc(o.id) +
+        '">Confirmer l’expédition du fournisseur</button>';
+    } else {
+      orderAction = '<p class="help">Expédition fournisseur enregistrée manuellement.</p>';
+    }
+
+    var canReceive = o.supplier.stage !== 'waiting' &&
+      (o.delivery.mode !== 'direct' || o.delivery.status === 'delivered');
+
+    var lines = o.items.map(function (item, index) {
+      var remaining = Math.max(0, item.supplierQuantity - item.received);
+      var controls = '';
+
+      if (remaining > 0) {
+        controls =
+          '<div class="form-grid">' +
+            '<label>Quantité reçue maintenant (reste ' + remaining + ')' +
+              '<input id="recv-' + esc(o.id) + '-' + index + '" type="number" min="1" max="' +
+              remaining + '" step="1" ' + (canReceive ? '' : 'disabled') + '>' +
+            '</label>' +
+            '<div><button type="button" data-act="receive" data-id="' + esc(o.id) +
+              '" data-index="' + index + '" ' + (canReceive ? '' : 'disabled') +
+              '>Enregistrer cette réception</button></div>' +
+          '</div>';
+      } else {
+        controls = '<p class="help">Toute la quantité fournisseur prévue pour cet article est enregistrée comme reçue.</p>';
+      }
+
+      return '<div class="receive-item"><strong>' + esc(item.name) + '</strong>' +
+        '<p class="help">Reçu : ' + item.received + ' / ' + item.supplierQuantity +
+        ' · Quantité demandée par le client : ' + item.quantity + '</p>' +
+        controls + '</div>';
+    }).join('');
+
+    var help = '';
+    if (o.supplier.stage === 'waiting') {
+      help = '<p class="help">Confirme d’abord manuellement que la commande fournisseur a été passée.</p>';
+    } else if (o.delivery.mode === 'direct' && o.delivery.status !== 'delivered') {
+      help = '<p class="help">Pour un envoi direct, enregistre la réception après avoir confirmé la livraison.</p>';
+    }
+
+    var expected = o.supplier.expectedDate ?
+      '<p class="help">Arrivée prévue : ' + esc(dateLabel(o.supplier.expectedDate)) + '</p>' : '';
+
+    return '<div class="subcard"><h4>Commande fournisseur — suivi séparé</h4>' +
+      '<p><strong>Fournisseur :</strong> ' + esc(o.supplier.name) +
+      ' · <strong>État :</strong> ' + supplierLabel(o) + '</p>' +
+      (o.supplier.orderNumber ? '<p><strong>N° de commande :</strong> ' + esc(o.supplier.orderNumber) + '</p>' : '') +
+      expected + orderAction + help + lines +
+      '<p class="help">La réception consignée ici ne confirme pas la compatibilité de la pièce.</p>' +
+      '</div>';
+  }
+
+  function deliveryModeLabel(mode) {
+    var labels = {
+      pickup: 'Retrait au magasin',
+      store: 'Livraison par le magasin',
+      direct: 'Envoi direct du fournisseur au client'
+    };
+    return labels[mode] || 'Non précisé';
+  }
+
+  function renderDelivery(o) {
+    if (o.delivery.mode === 'pickup') {
+      return '<div class="subcard"><h4>Remise / livraison</h4>' +
+        '<p>Mode : retrait au magasin. Aucun transport à suivre.</p></div>';
+    }
+
+    var labels = {
+      planned: 'Prévue',
+      transit: 'Expédiée / en cours',
+      delivered: 'Livraison effectuée'
+    };
+    var action = '';
+    var hint = '';
+
+    if (o.delivery.status === 'planned') {
+      var canStart = o.delivery.mode === 'store'
+        ? o.clientStage === 'available'
+        : !!o.supplier && o.supplier.stage === 'shipped';
+
+      action = '<button type="button" data-act="delivery-start" data-id="' + esc(o.id) +
+        '" ' + (canStart ? '' : 'disabled') + '>Confirmer le départ ou l’expédition</button>';
+
+      if (!canStart) {
+        hint = o.delivery.mode === 'store'
+          ? '<p class="help">La livraison par le magasin attend la vérification manuelle de la disponibilité.</p>'
+          : '<p class="help">Confirme d’abord l’expédition par le fournisseur.</p>';
+      }
+    } else if (o.delivery.status === 'transit') {
+      action = '<button type="button" data-act="delivery-done" data-id="' + esc(o.id) +
+        '">Confirmer la livraison au client</button>';
+    }
+
+    var details = [];
+    if (o.delivery.detail) details.push('Lieu : ' + esc(o.delivery.detail));
+    if (o.delivery.carrier) details.push('Transporteur : ' + esc(o.delivery.carrier));
+    if (o.delivery.tracking) details.push('Suivi : ' + esc(o.delivery.tracking));
+
+    return '<div class="subcard"><h4>Remise / livraison</h4>' +
+      '<p><strong>Mode :</strong> ' + deliveryModeLabel(o.delivery.mode) +
+      ' · <strong>État :</strong> ' + (labels[o.delivery.status] || 'Non précisé') + '</p>' +
+      (details.length ? '<p class="help">' + details.join(' · ') + '</p>' : '') +
+      action + hint + '</div>';
+  }
+
+  function customerStageLabel(stage) {
+    var labels = {
+      waiting: 'En attente',
+      checking: 'Reçue — contrôle à faire',
+      available: 'Disponible après contrôle manuel',
+      notified: 'Client prévenu',
+      complete: 'Remise / livraison enregistrée'
+    };
+    return labels[stage] || 'En attente';
+  }
+
+  function customerBlockReason(o) {
+    if (o.clientStage === 'waiting') {
+      if (o.supplier) {
+        for (var i = 0; i < o.items.length; i++) {
+          if (o.items[i].received < o.items[i].quantity) {
+            return 'La suite attend la réception d’au moins la quantité demandée pour chaque article.';
+          }
+        }
+      }
+      if (o.delivery.mode === 'direct' && o.delivery.status !== 'delivered') {
+        return 'Pour un envoi direct, confirme d’abord la livraison au client.';
+      }
+    }
+
+    if (o.clientStage === 'notified' &&
+        o.delivery.mode !== 'pickup' &&
+        o.delivery.status !== 'delivered') {
+      return 'La commande ne peut être clôturée avant la confirmation de livraison.';
+    }
+
+    return '';
+  }
+
+  function customerActionLabel(stage) {
+    var labels = {
+      waiting: 'Confirmer la réception — contrôle requis',
+      checking: 'Confirmer le contrôle de la pièce et de la quantité',
+      available: 'Confirmer que le client a été prévenu',
+      notified: 'Confirmer la remise ou la livraison'
+    };
+    return labels[stage] || '';
+  }
+
+  function renderRecord(o) {
+    var c = findClient(o.clientId);
+    if (!c) return '';
+
+    var vehicleText = '';
+    if (o.vehicleId) {
+      for (var i = 0; i < c.vehicles.length; i++) {
+        if (c.vehicles[i].id === o.vehicleId) {
+          vehicleText = c.vehicles[i].make + ' ' + c.vehicles[i].model +
+            (c.vehicles[i].year ? ' (' + c.vehicles[i].year + ')' : '');
+          break;
+        }
+      }
+    }
+
+    var itemList = o.items.map(function (item) {
+      var ref = item.reference ? ' · Réf. ' + esc(item.reference) : '';
+      var price = formatPrice(item.price);
+      var priceText = price ? ' · Prix unitaire : ' + esc(price) : '';
+      return '<li><strong>' + esc(item.name) + '</strong>' + ref +
+        ' · Quantité : ' + item.quantity + priceText + '</li>';
+    }).join('');
+
+    var reason = customerBlockReason(o);
+    var nextButton = '';
+
+    if (o.clientStage !== 'complete') {
+      nextButton = '<button type="button" data-act="customer-next" data-id="' + esc(o.id) +
+        '" ' + (reason ? 'disabled' : '') + '>' +
+        customerActionLabel(o.clientStage) + '</button>';
+    }
+
+    var messageButton = o.clientStage === 'available'
+      ? '<button class="secondary" type="button" data-act="message" data-id="' + esc(o.id) +
+        '">Préparer un aperçu de message</button>'
+      : '';
+
+    var kindText = o.kind === 'history'
+      ? 'Achat déjà réalisé — historique'
+      : 'Commande à suivre';
+
+    return '<article class="record">' +
+      '<div class="record-top"><div><strong>' + kindText + '</strong>' +
+      '<p class="help">Date : ' + esc(dateLabel(o.date)) +
+      (vehicleText ? ' · Véhicule : ' + esc(vehicleText) : ' · Aucun véhicule associé') +
+      '</p></div><span class="badge">' + customerStageLabel(o.clientStage) + '</span></div>' +
+      '<ul>' + itemList + '</ul>' +
+      renderSupplier(o) +
+      renderDelivery(o) +
+      (reason ? '<p class="help notice-line">' + reason + '</p>' : '') +
+      '<div class="button-row">' + messageButton + nextButton + '</div>' +
+      '</article>';
+  }
+
+  function renderOrders() {
+    var c = activeClient();
+    if (!c) {
+      $('orderList').innerHTML = '<p class="muted">Sélectionne un client pour afficher son historique.</p>';
+      return;
+    }
+
+    var orders = state.orders.filter(function (o) {
+      return o.clientId === c.id;
+    }).slice().reverse();
+
+    if (!orders.length) {
+      $('orderList').innerHTML = '<p class="muted">Aucun achat ou commande enregistré pour ce client.</p>';
+      return;
+    }
+
+    $('orderList').innerHTML = orders.map(renderRecord).join('');
+  }
+
+  function renderAll() {
+    var exists = state.clients.some(function (c) {
+      return c.id === selectedClientId;
+    });
+    if (!exists) selectedClientId = '';
+
+    $('activeClient').innerHTML =
+      '<option value="">— Aucun client —</option>' +
+      state.clients.map(function (c) {
+        var type = c.type === 'professionnel' ? 'professionnel' : 'particulier';
+        return '<option value="' + esc(c.id) + '">' + esc(c.name) + ' — ' + type + '</option>';
+      }).join('');
+
+    $('activeClient').value = selectedClientId;
+    renderClientList();
+    renderVehicles();
+    renderOrderForm();
+    renderOrders();
+  }
+
+  function hideMessage() {
+    $('messagePanel').hidden = true;
+    $('messageText').value = '';
+    $('copyStatus').textContent = 'Cet aperçu ne contacte pas le client. Relis-le et envoie-le toi-même, si nécessaire.';
+  }
+
+  function showMessage(o) {
+    var c = findClient(o.clientId);
+    if (!c || o.clientStage !== 'available') {
+      setStatus('L’aperçu est proposé seulement après la vérification manuelle de la disponibilité.');
+      return;
+    }
+
+    var greeting = c.type === 'professionnel'
+      ? (c.contactName ? 'Bonjour ' + c.contactName + ',' : 'Bonjour,')
+      : 'Bonjour ' + c.name + ',';
+
+    var lines = o.items.map(function (item) {
+      return '• ' + item.name +
+        (item.reference ? ' (réf. ' + item.reference + ')' : '') +
+        ' — quantité : ' + item.quantity;
+    }).join('\n');
+
+    $('messageText').value = greeting + '\n\n' +
+      'Les pièces commandées sont disponibles après vérification :\n' +
+      lines + '\n\n' +
+      'Merci de nous contacter pour convenir du retrait ou de la livraison.';
+
+    $('messageMeta').textContent =
+      'Aperçu destiné à un contact par ' + contactLabel(c.preferred) +
+      '. Aucun message ne sera envoyé par cette page.';
+
+    $('copyStatus').textContent =
+      'Relis le texte. La copie dans le presse-papiers ne l’envoie pas au client.';
+    $('messagePanel').hidden = false;
+    $('messagePanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function advanceCustomer(o) {
+    var reason = customerBlockReason(o);
+    if (reason) {
+      setStatus(reason);
+      return;
+    }
+
+    if (o.clientStage === 'waiting') {
+      if (!window.confirm('Confirmer que la quantité nécessaire est arrivée physiquement, au magasin ou chez le client selon le mode choisi ?')) return;
+      o.clientStage = 'checking';
+      setStatus('Réception enregistrée. La pièce et la quantité doivent encore être contrôlées.');
+    } else if (o.clientStage === 'checking') {
+      if (!window.confirm('As-tu vérifié manuellement la pièce, sa référence et la quantité reçue ?')) return;
+      o.clientStage = 'available';
+      setStatus('Disponibilité enregistrée après ta confirmation manuelle.');
+    } else if (o.clientStage === 'available') {
+      if (!window.confirm('As-tu effectivement prévenu le client toi-même ? Cette page n’envoie aucun message.')) return;
+      o.clientStage = 'notified';
+      setStatus('Le client est enregistré comme prévenu manuellement.');
+    } else if (o.clientStage === 'notified') {
+      if (!window.confirm('Confirmer que les pièces ont bien été remises ou livrées au client ?')) return;
+      o.clientStage = 'complete';
+      setStatus('Remise ou livraison enregistrée manuellement.');
+    }
+
+    hideMessage();
+    renderAll();
+  }
+
+  $('clientType').addEventListener('change', updateClientType);
+
+  $('clientForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    var type = $('clientType').value;
+    var c = {
+      id: makeId('client'),
+      type: type,
+      name: $('clientName').value.trim(),
+      contactName: type === 'professionnel' ? $('contactName').value.trim() : '',
+      phone: $('clientPhone').value.trim(),
+      email: $('clientEmail').value.trim(),
+      preferred: $('preferredContact').value,
+      vehicles: []
+    };
+
+    state.clients.push(c);
+    selectedClientId = c.id;
+    this.reset();
+    updateClientType();
+    hideMessage();
+    renderAll();
+    setStatus('Fiche fictive créée. Les données ne sont pas sauvegardées.');
+  });
+
+  $('activeClient').addEventListener('change', function () {
+    selectedClientId = this.value;
+    hideMessage();
+    renderAll();
+  });
+
+  $('clientList').addEventListener('click', function (event) {
+    var button = event.target.closest('[data-select-client]');
+    if (!button) return;
+    selectedClientId = button.getAttribute('data-select-client');
+    hideMessage();
+    renderAll();
+  });
+
+  $('vehicleForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var c = activeClient();
+    if (!c) {
+      setStatus('Sélectionne un client avant d’ajouter un véhicule.');
+      return;
+    }
+
+    c.vehicles.push({
+      id: makeId('vehicle'),
+      make: $('vehicleMake').value.trim(),
+      model: $('vehicleModel').value.trim(),
+      year: $('vehicleYear').value
+    });
+
+    this.reset();
+    hideMessage();
+    renderAll();
+    setStatus('Véhicule fictif associé au client.');
+  });
+
+  $('orderKind').addEventListener('change', updateOrderOptions);
+  $('externalFlag').addEventListener('change', updateOrderOptions);
+  $('deliveryMode').addEventListener('change', updateOrderOptions);
+  $('addItem').addEventListener('click', addItemRow);
+
+  $('itemRows').addEventListener('click', function (event) {
+    var button = event.target.closest('.remove-item');
+    if (!button) return;
+
+    var rows = $('itemRows').querySelectorAll('.item-row');
+    if (rows.length <= 1) {
+      setStatus('Une fiche doit garder au moins un article.');
+      return;
+    }
+
+    button.closest('.item-row').remove();
+    updateOrderOptions();
+  });
+
+  $('orderForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    var c = activeClient();
+    if (!c) {
+      setStatus('Sélectionne un client avant d’ajouter un achat ou une commande.');
+      return;
+    }
+
+    var history = $('orderKind').value === 'history';
+    var external = !history && $('externalFlag').checked;
+    var mode = $('deliveryMode').value;
+
+    if (!history && mode === 'direct' && !external) {
+      window.alert('Un envoi direct au client doit être rattaché à un fournisseur externe.');
+      return;
+    }
+
+    var rows = $('itemRows').querySelectorAll('.item-row');
+    var items = [];
+
+    for (var i = 0; i < rows.length; i++) {
+      var quantity = Number(rows[i].querySelector('.item-quantity').value);
+      var supplierQuantity = external
+        ? Number(rows[i].querySelector('.item-supplier-quantity').value)
+        : 0;
+
+      if (!isFinite(quantity) || quantity < 1 || Math.floor(quantity) !== quantity) {
+        window.alert('Vérifie la quantité demandée pour chaque article.');
+        return;
+      }
+
+      if (external &&
+          (!isFinite(supplierQuantity) ||
+           supplierQuantity < quantity ||
+           Math.floor(supplierQuantity) !== supplierQuantity)) {
+        window.alert('Pour chaque article, indique une quantité fournisseur au moins égale à la quantité demandée par le client.');
+        return;
+      }
+
+      var priceValue = rows[i].querySelector('.item-price').value;
+      items.push({
+        name: rows[i].querySelector('.item-name').value.trim(),
+        reference: rows[i].querySelector('.item-reference').value.trim(),
+        quantity: quantity,
+        price: priceValue === '' ? '' : String(Number(priceValue)),
+        supplierQuantity: supplierQuantity,
+        received: 0
+      });
+    }
+
+    var vehicleId = $('orderVehicle').value;
+    var vehicleExists = c.vehicles.some(function (v) { return v.id === vehicleId; });
+    if (!vehicleExists) vehicleId = '';
+
+    var record = {
+      id: makeId('order'),
+      clientId: c.id,
+      vehicleId: vehicleId,
+      kind: history ? 'history' : 'command',
+      date: $('orderDate').value,
+      items: items,
+      supplier: external ? {
+        name: $('supplierName').value.trim(),
+        orderNumber: $('supplierOrderNo').value.trim(),
+        expectedDate: $('supplierExpected').value,
+        stage: 'waiting'
+      } : null,
+      delivery: {
+        mode: mode,
+        detail: mode === 'pickup' ? '' : $('deliveryDetail').value.trim(),
+        carrier: mode === 'pickup' ? '' : $('deliveryCarrier').value.trim(),
+        tracking: mode === 'pickup' ? '' : $('deliveryTracking').value.trim(),
+        status: mode === 'pickup' ? 'none' : (history ? 'delivered' : 'planned')
+      },
+      clientStage: history ? 'complete' : 'waiting'
+    };
+
+    state.orders.push(record);
+    this.reset();
+    $('itemRows').innerHTML = '';
+    addItemRow();
+    updateOrderOptions();
+    hideMessage();
+    renderAll();
+    setStatus(history
+      ? 'Achat fictif ajouté à l’historique comme déjà réalisé.'
+      : 'Commande fictive ajoutée. Aucun fournisseur ou client n’a été contacté.');
+  });
+
+  $('orderList').addEventListener('click', function (event) {
+    var button = event.target.closest('button[data-act]');
+    if (!button) return;
+
+    var id = button.getAttribute('data-id');
+    var record = null;
+    for (var i = 0; i < state.orders.length; i++) {
+      if (state.orders[i].id === id) {
+        record = state.orders[i];
+        break;
+      }
+    }
+    if (!record) return;
+
+    var action = button.getAttribute('data-act');
+
+    if (action === 'message') {
+      showMessage(record);
+      return;
+    }
+
+    hideMessage();
+
+    if (action === 'supplier-ordered') {
+      if (!window.confirm('Confirmer que la commande a réellement été passée auprès du fournisseur ?')) return;
+      record.supplier.stage = 'ordered';
+      setStatus('Commande fournisseur marquée comme passée manuellement.');
+    } else if (action === 'supplier-shipped') {
+      if (!window.confirm('Confirmer que le fournisseur a expédié la commande ?')) return;
+      record.supplier.stage = 'shipped';
+      setStatus('Expédition fournisseur marquée manuellement.');
+    } else if (action === 'receive') {
+      var index = Number(button.getAttribute('data-index'));
+      var item = record.items[index];
+      var input = document.getElementById('recv-' + record.id + '-' + index);
+
+      if (!item || !input || input.value === '') {
+        setStatus('Saisis la quantité reçue pour cet article.');
+        return;
+      }
+
+      var amount = Number(input.value);
+      var remaining = item.supplierQuantity - item.received;
+
+      if (!isFinite(amount) || amount < 1 || Math.floor(amount) !== amount || amount > remaining) {
+        setStatus('La quantité saisie est invalide ou dépasse le reste à recevoir.');
+        return;
+      }
+
+      if (record.supplier.stage === 'waiting') {
+        setStatus('Confirme d’abord que la commande fournisseur est passée.');
+        return;
+      }
+
+      if (record.delivery.mode === 'direct' && record.delivery.status !== 'delivered') {
+        setStatus('Pour un envoi direct, confirme d’abord la livraison au client.');
+        return;
+      }
+
+      item.received += amount;
+      setStatus('Quantité reçue enregistrée. La disponibilité client reste à contrôler séparément.');
+    } else if (action === 'delivery-start') {
+      if (record.delivery.mode === 'store' && record.clientStage !== 'available') {
+        setStatus('La pièce doit d’abord être contrôlée et déclarée disponible.');
+        return;
+      }
+      if (record.delivery.mode === 'direct' &&
+          (!record.supplier || record.supplier.stage !== 'shipped')) {
+        setStatus('Confirme d’abord l’expédition du fournisseur.');
+        return;
+      }
+      if (!window.confirm('Confirmer manuellement le départ ou l’expédition ?')) return;
+      record.delivery.status = 'transit';
+      setStatus('Départ ou expédition enregistré manuellement.');
+    } else if (action === 'delivery-done') {
+      if (!window.confirm('Confirmer que le client a bien reçu la livraison ?')) return;
+      record.delivery.status = 'delivered';
+      setStatus('Livraison enregistrée manuellement. La vérification de la pièce reste distincte.');
+    } else if (action === 'customer-next') {
+      advanceCustomer(record);
+      return;
+    }
+
+    renderAll();
+  });
+
+  $('copyMessage').addEventListener('click', function () {
+    var text = $('messageText').value;
+
+    function selectForManualCopy() {
+      $('messageText').focus();
+      $('messageText').select();
+      $('copyStatus').textContent =
+        'Texte sélectionné. Copie-le manuellement si tu le souhaites : aucun envoi n’a été effectué.';
+    }
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        $('copyStatus').textContent = 'Aperçu copié dans le presse-papiers. Aucun envoi n’a été effectué.';
+      }).catch(selectForManualCopy);
+    } else {
+      selectForManualCopy();
+    }
+  });
+
+  addItemRow();
+  updateClientType();
+  updateOrderOptions();
+  renderAll();
+})();
+</script>
+</body>
+</html>
