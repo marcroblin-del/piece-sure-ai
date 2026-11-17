@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototype coffre clients — PIÈCE-SÛRE AI</title>
+<style>
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+
+  body {
+    margin: 0;
+    color: #17212b;
+    background: #f2f5f8;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  .page { max-width: 960px; margin: 0 auto; padding: 16px; }
+  h1 { margin: 0 0 8px; font-size: 1.65rem; }
+  h2 { margin-top: 0; font-size: 1.25rem; }
+  h3 { font-size: 1.05rem; }
+  p { line-height: 1.45; }
+
+  .card {
+    margin: 16px 0;
+    padding: 16px;
+    background: white;
+    border: 1px solid #d5dde5;
+    border-radius: 12px;
+  }
+
+  .warning {
+    margin: 12px 0;
+    padding: 12px;
+    background: #fff4dd;
+    border-left: 6px solid #b36b00;
+    border-radius: 8px;
+    line-height: 1.45;
+  }
+
+  .help { color: #526171; font-size: .92rem; }
+  .status { min-height: 1.5em; color: #174a70; font-weight: 600; }
+  .error { color: #9b1c1c; }
+  .principle { color: #174a70; font-weight: 700; }
+
+  form { display: grid; gap: 12px; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 12px;
+    align-items: end;
+  }
+
+  label { display: block; font-weight: 600; font-size: .93rem; }
+  input, select, textarea {
+    display: block;
+    width: 100%;
+    margin-top: 5px;
+    padding: 10px;
+    border: 1px solid #aebbc8;
+    border-radius: 7px;
+    background: white;
+    color: #17212b;
+    font: inherit;
+  }
+
+  button, .download-link {
+    display: inline-block;
+    min-height: 42px;
+    padding: 9px 13px;
+    border: 1px solid #075985;
+    border-radius: 8px;
+    background: #075985;
+    color: white;
+    font: inherit;
+    font-weight: 650;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  button.secondary {
+    color: #174a70;
+    background: #f5f9fc;
+    border-color: #8ba6ba;
+  }
+
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .button-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  details { margin-top: 16px; }
+  summary { cursor: pointer; font-weight: 650; }
+  hr { border: 0; border-top: 1px solid #dce3e9; margin: 16px 0; }
+
+  .record {
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid #d5dde5;
+    border-radius: 9px;
+    background: #fbfcfd;
+  }
+
+  .record p { margin: 7px 0; }
+  .record-value { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .topbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #backupLinks { display: grid; gap: 8px; margin-top: 10px; }
+
+  @media (max-width: 600px) {
+    .page { padding: 12px; }
+    .card { padding: 13px; }
+    h1 { font-size: 1.4rem; }
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+  <header>
+    <h1>PIÈCE-SÛRE AI — test du coffre clients</h1>
+    <p class="principle">NE PAS DEVINER → VÉRIFIER → DÉCIDER → TRACER</p>
+
+    <div class="warning">
+      <strong>Prototype de test uniquement : n’inscris aucune vraie donnée client.</strong>
+      Utilise des noms, coordonnées, véhicules, achats et références entièrement fictifs.
+      N’inscris ni VIN, ni plaque, ni adresse réelle.
+    </div>
+
+    <p class="help">
+      Le coffre chiffre les données avant de les enregistrer dans le stockage local du navigateur.
+      Quand la page est déverrouillée, les données sont visibles dans cette page.
+      Une phrase secrète oubliée ne peut pas être récupérée.
+    </p>
+
+    <p class="help">
+      Le code de ce test ne contient pas de fonction d’envoi des fiches à un serveur.
+      GitHub Pages héberge néanmoins le code de la page. Ce prototype n’est ni audité ni validé
+      pour stocker de vraies données personnelles. Ne dépose jamais le fichier de sauvegarde dans GitHub.
+    </p>
+  </header>
+
+  <div id="compat" class="warning" hidden></div>
+
+  <section id="authPanel" class="card" hidden>
+    <div id="createBox" hidden>
+      <h2>Créer un coffre de test</h2>
+      <p class="help">
+        Choisis une phrase secrète longue et unique, idéalement plusieurs mots.
+        Ne me l’envoie pas et ne l’inscris pas dans le dépôt GitHub.
+      </p>
+
+      <form id="createForm" autocomplete="off" onsubmit="return false;">
+        <label for="createPass">Nouvelle phrase secrète
+          <input id="createPass" type="password" minlength="12" required
+                 autocomplete="off" autocapitalize="none" spellcheck="false">
+        </label>
+
+        <label for="createPassAgain">Confirmer la phrase secrète
+          <input id="createPassAgain" type="password" minlength="12" required
+                 autocomplete="off" autocapitalize="none" spellcheck="false">
+        </label>
+
+        <button id="createSubmit" type="submit">Créer le coffre de test</button>
+      </form>
+    </div>
+
+    <div id="unlockBox" hidden>
+      <h2>Déverrouiller le coffre local</h2>
+      <form id="unlockForm" autocomplete="off" onsubmit="return false;">
+        <label for="unlockPass">Phrase secrète
+          <input id="unlockPass" type="password" required
+                 autocomplete="off" autocapitalize="none" spellcheck="false">
+        </label>
+        <button id="unlockSubmit" type="submit">Déverrouiller</button>
+      </form>
+    </div>
+
+    <p id="authStatus" class="status" role="status" aria-live="polite"></p>
+
+    <details id="restoreBox">
+      <summary>Restaurer une sauvegarde chiffrée</summary>
+      <p class="help">
+        Choisis un fichier de sauvegarde chiffrée et sa phrase secrète.
+        La restauration remplacera le coffre local de ce prototype.
+      </p>
+
+      <form id="restoreForm" autocomplete="off" onsubmit="return false;">
+        <label for="restoreFile">Fichier de sauvegarde JSON
+          <input id="restoreFile" type="file" accept=".json,application/json" required>
+        </label>
+
+        <label for="restorePass">Phrase secrète de cette sauvegarde
+          <input id="restorePass" type="password" required
+                 autocomplete="off" autocapitalize="none" spellcheck="false">
+        </label>
+
+        <button id="restoreSubmit" class="secondary" type="submit">
+          Déchiffrer et restaurer
+        </button>
+      </form>
+    </details>
+  </section>
+
+  <section id="vaultPanel" class="card" hidden>
+    <div class="topbar">
+      <div>
+        <h2>Coffre de test déverrouillé</h2>
+        <p class="help">Verrouillage automatique après cinq minutes sans activité.</p>
+      </div>
+      <div class="button-row">
+        <button id="backupButton" class="secondary" type="button">
+          Préparer une sauvegarde chiffrée
+        </button>
+        <button id="lockButton" type="button">Verrouiller</button>
+      </div>
+    </div>
+
+    <p id="saveStatus" class="status" role="status" aria-live="polite"></p>
+    <div id="backupLinks"></div>
+
+    <hr>
+
+    <h3>Ajouter une entrée fictive</h3>
+    <p class="help">
+      Chaque entrée est un exemple de client et d’achat. Plusieurs entrées peuvent être ajoutées
+      pour tester l’enregistrement et la restauration.
+    </p>
+
+    <form id="recordForm" autocomplete="off" onsubmit="return false;">
+      <div class="grid">
+        <label for="recordType">Type de client (test)
+          <select id="recordType" required>
+            <option value="particulier">Particulier fictif</option>
+            <option value="professionnel">Professionnel fictif</option>
+          </select>
+        </label>
+
+        <label for="recordName">Nom fictif ou entreprise fictive
+          <input id="recordName" type="text" maxlength="100" required autocomplete="off">
+        </label>
+
+        <label for="recordContact">Personne à contacter (facultatif)
+          <input id="recordContact" type="text" maxlength="100" autocomplete="off">
+        </label>
+
+        <label for="recordPhone">Téléphone fictif (facultatif)
+          <input id="recordPhone" type="tel" maxlength="40" autocomplete="off">
+        </label>
+
+        <label for="recordEmail">Courriel fictif (facultatif)
+          <input id="recordEmail" type="email" maxlength="120" autocomplete="off">
+        </label>
+
+        <label for="recordVehicle">Véhicule fictif (facultatif — sans plaque ni VIN)
+          <input id="recordVehicle" type="text" maxlength="120" autocomplete="off">
+        </label>
+
+        <label for="recordDate">Date fictive
+          <input id="recordDate" type="date" required>
+        </label>
+
+        <label for="recordPurchase">Achat ou commande fictive
+          <input id="recordPurchase" type="text" maxlength="160" required autocomplete="off">
+        </label>
+
+        <label for="recordReference">Référence fictive (facultatif)
+          <input id="recordReference" type="text" maxlength="100" autocomplete="off">
+        </label>
+
+        <label for="recordQuantity">Quantité fictive
+          <input id="recordQuantity" type="number" min="1" max="10000" step="1" value="1" required>
+        </label>
+
+        <label for="recordStage">Étape de démonstration
+          <select id="recordStage" required>
+            <option value="commande">Commande fictive saisie</option>
+            <option value="reception">Réception fictive à contrôler</option>
+            <option value="controle">Contrôle fictif simulé</option>
+            <option value="avis">Avis fictif préparé — non envoyé</option>
+            <option value="remise">Remise ou livraison fictive</option>
+          </select>
+        </label>
+      </div>
+
+      <button id="addRecordButton" type="submit">Chiffrer et ajouter cette entrée fictive</button>
+    </form>
+
+    <hr>
+
+    <h3>Entrées fictives du coffre</h3>
+    <div id="recordCount" class="help"></div>
+    <div id="recordsList"></div>
+  </section>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'pieceSureCoffreTestV1';
+  var FORMAT = 'PIECE-SURE-COFFRE-TEST';
+  var KDF = 'PBKDF2-SHA-256';
+  var CIPHER = 'AES-GCM-256';
+  var DEFAULT_ITERATIONS = 600000;
+  var MIN_ITERATIONS = 100000;
+  var MAX_ITERATIONS = 1000000;
+  var IDLE_MS = 5 * 60 * 1000;
+
+  var STAGES = {
+    commande: 'Commande fictive saisie',
+    reception: 'Réception fictive à contrôler',
+    controle: 'Contrôle fictif simulé',
+    avis: 'Avis fictif préparé — non envoyé',
+    remise: 'Remise ou livraison fictive'
+  };
+
+  var vaultData = null;
+  var vaultKey = null;
+  var vaultSalt = null;
+  var vaultIterations = DEFAULT_ITERATIONS;
+  var currentEnvelope = null;
+  var idleTimer = null;
+  var lastActivity = 0;
+  var lastObjectUrl = null;
+  var saving = false;
+
+  function $(id) {
+    return document.getElementById(id);
+  }
+
+  function clearElement(element) {
+    while (element.firstChild) element.removeChild(element.firstChild);
+  }
+
+  function setAuthStatus(message, isError) {
+    $('authStatus').textContent = message || '';
+    $('authStatus').className = isError ? 'status error' : 'status';
+  }
+
+  function setSaveStatus(message, isError) {
+    $('saveStatus').textContent = message || '';
+    $('saveStatus').className = isError ? 'status error' : 'status';
+  }
+
+  function supportsRequiredCrypto() {
+    return !!(
+      window.crypto &&
+      window.crypto.getRandomValues &&
+      window.crypto.subtle &&
+      typeof window.TextEncoder === 'function' &&
+      typeof window.TextDecoder === 'function' &&
+      window.isSecureContext !== false
+    );
+  }
+
+  function toBase64(bytes) {
+    var binary = '';
+    var size = 0x8000;
+    for (var i = 0; i < bytes.length; i += size) {
+      binary += String.fromCharCode.apply(
+        null,
+        bytes.subarray(i, Math.min(i + size, bytes.length))
+      );
+    }
+    return window.btoa(binary);
+  }
+
+  function fromBase64(value) {
+    if (typeof value !== 'string' || !/^[A-Za-z0-9+/]*={0,2}$/.test(value)) {
+      throw new Error('Champ binaire invalide.');
+    }
+
+    var binary = window.atob(value);
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  function checkEnvelope(envelope) {
+    if (
+      !envelope ||
+      envelope.format !== FORMAT ||
+      envelope.version !== 1 ||
+      envelope.kdf !== KDF ||
+      envelope.cipher !== CIPHER ||
+      !Number.isInteger(envelope.iterations) ||
+      envelope.iterations < MIN_ITERATIONS ||
+      envelope.iterations > MAX_ITERATIONS
+    ) {
+      throw new Error('Format de sauvegarde non reconnu.');
+    }
+
+    var salt = fromBase64(envelope.salt);
+    var iv = fromBase64(envelope.iv);
+    var ciphertext = fromBase64(envelope.ciphertext);
+
+    if (salt.length !== 16 || iv.length !== 12 || ciphertext.length < 16) {
+      throw new Error('Sauvegarde incomplète ou illisible.');
+    }
+
+    return {
+      salt: salt,
+      iv: iv,
+      ciphertext: ciphertext,
+      iterations: envelope.iterations
+    };
+  }
+
+  async function deriveKey(password, salt, iterations) {
+    var material = await window.crypto.subtle.importKey(
+      'raw',
+      new window.TextEncoder().encode(password),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+
+    return await window.crypto.subtle.deriveKey(
+      {
+        name: 'PBKDF2',
+        salt: salt,
+        iterations: iterations,
+        hash: 'SHA-256'
+      },
+      material,
+      {
+        name: 'AES-GCM',
+        length: 256
+      },
+      false,
+      ['encrypt', 'decrypt']
+    );
+  }
+
+  async function encryptPayload(data, key, salt, iterations) {
+    var iv = window.crypto.getRandomValues(new Uint8Array(12));
+    var plaintext = new window.TextEncoder().encode(JSON.stringify(data));
+
+    var encrypted = await window.crypto.subtle.encrypt(
+      {
+        name: 'AES-GCM',
+        iv: iv,
+        tagLength: 128
+      },
+      key,
+      plaintext
+    );
+
+    return {
+      format: FORMAT,
+      version: 1,
+      kdf: KDF,
+      cipher: CIPHER,
+      iterations: iterations,
+      salt: toBase64(salt),
+      iv: toBase64(iv),
+      ciphertext: toBase64(new Uint8Array(encrypted))
+    };
+  }
+
+  function isString(value, maxLength, required) {
+    return typeof value === 'string' &&
+      value.length <= maxLength &&
+      (!required || value.trim().length > 0);
+  }
+
+  function validPayload(data) {
+    if (!data || typeof data !== 'object' || !Array.isArray(data.records) || data.records.length > 1000) {
+      return false;
+    }
+
+    for (var i = 0; i < data.records.length; i++) {
+      var r = data.records[i];
+
+      if (!r || typeof r !== 'object' || Array.isArray(r)) return false;
+      if (!isString(r.id, 100, true)) return false;
+      if (!isString(r.name, 100, true)) return false;
+      if (r.type !== 'particulier' && r.type !== 'professionnel') return false;
+      if (!isString(r.contact, 100, false)) return false;
+      if (!isString(r.phone, 40, false)) return false;
+      if (!isString(r.email, 120, false)) return false;
+      if (!isString(r.vehicle, 120, false)) return false;
+      if (!isString(r.date, 10, true)) return false;
+      if (!isString(r.purchase, 160, true)) return false;
+      if (!isString(r.reference, 100, false)) return false;
+      if (!Number.isInteger(r.quantity) || r.quantity < 1 || r.quantity > 10000) return false;
+      if (!Object.prototype.hasOwnProperty.call(STAGES, r.stage)) return false;
+    }
+
+    return true;
+  }
+
+  async function decryptEnvelope(envelope, password) {
+    var checked = checkEnvelope(envelope);
+    var key = await deriveKey(password, checked.salt, checked.iterations);
+
+    var plaintext = await window.crypto.subtle.decrypt(
+      {
+        name: 'AES-GCM',
+        iv: checked.iv,
+        tagLength: 128
+      },
+      key,
+      checked.ciphertext
+    );
+
+    var data = JSON.parse(new window.TextDecoder().decode(plaintext));
+
+    if (!validPayload(data)) {
+      throw new Error('Le contenu déchiffré n’a pas le format attendu.');
+    }
+
+    return {
+      data: data,
+      key: key,
+      salt: checked.salt,
+      iterations: checked.iterations
+    };
+  }
+
+  function refreshAuth(message) {
+    $('authPanel').hidden = false;
+    $('vaultPanel').hidden = true;
+
+    try {
+      var exists = window.localStorage.getItem(STORAGE_KEY) !== null;
+      $('createBox').hidden = exists;
+      $('unlockBox').hidden = !exists;
+      $('createSubmit').disabled = false;
+      $('unlockSubmit').disabled = false;
+      $('restoreSubmit').disabled = false;
+
+      setAuthStatus(
+        message || (exists
+          ? 'Un coffre local existe. Saisis sa phrase secrète pour le déverrouiller.'
+          : 'Aucun coffre local de test. Tu peux en créer un ou restaurer une sauvegarde chiffrée.')
+      );
+    } catch (error) {
+      $('createBox').hidden = false;
+      $('unlockBox').hidden = true;
+      $('createSubmit').disabled = true;
+      $('unlockSubmit').disabled = true;
+      $('restoreSubmit').disabled = true;
+      setAuthStatus('Le stockage local du navigateur est inaccessible ici.', true);
+    }
+  }
+
+  function todayLocal() {
+    var d = new Date();
+    var month = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return d.getFullYear() + '-' + month + '-' + day;
+  }
+
+  function makeId() {
+    var random = window.crypto.getRandomValues(new Uint8Array(12));
+    return Date.now().toString(36) + '-' + toBase64(random).replace(/[^A-Za-z0-9]/g, '');
+  }
+
+  function openVault(data, key, salt, iterations, envelope, message) {
+    vaultData = data;
+    vaultKey = key;
+    vaultSalt = salt;
+    vaultIterations = iterations;
+    currentEnvelope = envelope;
+
+    $('authPanel').hidden = true;
+    $('vaultPanel').hidden = false;
+    $('createForm').reset();
+    $('unlockForm').reset();
+    $('restoreForm').reset();
+    $('recordForm').reset();
+    $('recordDate').value = todayLocal();
+
+    clearElement($('recordsList'));
+    clearElement($('backupLinks'));
+    renderRecords();
+
+    setSaveStatus(message || 'Coffre déverrouillé. Les entrées enregistrées sont chiffrées dans ce navigateur.');
+    lastActivity = Date.now();
+    armAutoLock();
+  }
+
+  async function commitData(nextData) {
+    if (!vaultKey || !vaultSalt || saving) return false;
+
+    saving = true;
+    setSaveStatus('Chiffrement et enregistrement local en cours…');
+
+    try {
+      var envelope = await encryptPayload(
+        nextData,
+        vaultKey,
+        vaultSalt,
+        vaultIterations
+      );
+
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+      vaultData = nextData;
+      currentEnvelope = envelope;
+      setSaveStatus('Entrée enregistrée sous forme chiffrée dans le stockage local.');
+      return true;
+    } catch (error) {
+      setSaveStatus('Échec de l’enregistrement local. Laisse la page ouverte et vérifie le stockage.', true);
+      return false;
+    } finally {
+      saving = false;
+    }
+  }
+
+  function addField(parent, label, value) {
+    var p = document.createElement('p');
+    var strong = document.createElement('strong');
+    strong.textContent = label + ' : ';
+    p.appendChild(strong);
+
+    var span = document.createElement('span');
+    span.className = 'record-value';
+    span.textContent = value || '—';
+    p.appendChild(span);
+    parent.appendChild(p);
+  }
+
+  function renderRecords() {
+    if (!vaultData) return;
+
+    var box = $('recordsList');
+    clearElement(box);
+    $('recordCount').textContent = vaultData.records.length + ' entrée(s) fictive(s).';
+
+    if (!vaultData.records.length) {
+      var empty = document.createElement('p');
+      empty.className = 'help';
+      empty.textContent = 'Aucune entrée. Ajoute une fiche entièrement fictive pour tester le coffre.';
+      box.appendChild(empty);
+      return;
+    }
+
+    var records = vaultData.records.slice().reverse();
+
+    for (var i = 0; i < records.length; i++) {
+      var r = records[i];
+      var article = document.createElement('article');
+      article.className = 'record';
+
+      var title = document.createElement('h3');
+      title.textContent = r.name + (r.type === 'professionnel'
+        ? ' — professionnel fictif'
+        : ' — particulier fictif');
+      article.appendChild(title);
+
+      addField(article, 'Personne à contacter', r.contact);
+      addField(article, 'Téléphone fictif', r.phone);
+      addField(article, 'Courriel fictif', r.email);
+      addField(article, 'Véhicule fictif', r.vehicle);
+      addField(article, 'Date fictive', r.date);
+      addField(article, 'Achat ou commande fictive', r.purchase);
+      addField(article, 'Référence fictive', r.reference);
+      addField(article, 'Quantité fictive', String(r.quantity));
+      addField(article, 'Étape de démonstration', STAGES[r.stage]);
+
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'secondary';
+      remove.textContent = 'Supprimer cette entrée fictive';
+      remove.setAttribute('data-remove-id', r.id);
+      article.appendChild(remove);
+
+      box.appendChild(article);
+    }
+  }
+
+  function armAutoLock() {
+    if (idleTimer) window.clearTimeout(idleTimer);
+    idleTimer = window.setTimeout(function () {
+      lockVault('Verrouillage automatique après cinq minutes sans activité.');
+    }, IDLE_MS);
+  }
+
+  function noteActivity() {
+    if (!vaultKey) return;
+    lastActivity = Date.now();
+    armAutoLock();
+  }
+
+  function cleanupBackupLink() {
+    if (lastObjectUrl) {
+      window.URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = null;
+    }
+    clearElement($('backupLinks'));
+  }
+
+  function lockVault(message) {
+    if (idleTimer) {
+      window.clearTimeout(idleTimer);
+      idleTimer = null;
+    }
+
+    vaultKey = null;
+    vaultData = null;
+    vaultSalt = null;
+    currentEnvelope = null;
+
+    $('vaultPanel').hidden = true;
+    $('recordForm').reset();
+    clearElement($('recordsList'));
+    cleanupBackupLink();
+
+    refreshAuth(message || 'Coffre verrouillé.');
+  }
+
+  function exportEncryptedBackup() {
+    if (!currentEnvelope) {
+      setSaveStatus('Aucune sauvegarde chiffrée disponible.', true);
+      return;
+    }
+
+    try {
+      cleanupBackupLink();
+
+      var blob = new Blob(
+        [JSON.stringify(currentEnvelope, null, 2)],
+        { type: 'application/json' }
+      );
+
+      lastObjectUrl = window.URL.createObjectURL(blob);
+
+      var link = document.createElement('a');
+      link.href = lastObjectUrl;
+      link.download = 'piece-sure-coffre-test-' + todayLocal() + '.json';
+      link.className = 'download-link';
+      link.textContent = 'Toucher ici pour télécharger la sauvegarde chiffrée';
+      $('backupLinks').appendChild(link);
+
+      setSaveStatus('Fichier de sauvegarde chiffrée prêt. Ne le dépose pas dans GitHub.');
+    } catch (error) {
+      setSaveStatus('Impossible de préparer le fichier de sauvegarde sur cet appareil.', true);
+    }
+  }
+
+  function readFileAsText(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve(String(reader.result || ''));
+      };
+      reader.onerror = function () {
+        reject(new Error('Lecture du fichier impossible.'));
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  $('createForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    var password = $('createPass').value;
+    var confirmation = $('createPassAgain').value;
+
+    if (password.length < 12) {
+      setAuthStatus('Choisis une phrase secrète d’au moins 12 caractères.', true);
+      return;
+    }
+    if (password !== confirmation) {
+      setAuthStatus('Les deux phrases secrètes ne correspondent pas.', true);
+      return;
+    }
+
+    try {
+      if (window.localStorage.getItem(STORAGE_KEY) !== null) {
+        refreshAuth('Un coffre existe déjà. Déverrouille-le ou restaure une sauvegarde.', true);
+        return;
+      }
+
+      $('createSubmit').disabled = true;
+      setAuthStatus('Création et chiffrement en cours. Cela peut prendre quelques secondes…');
+
+      var salt = window.crypto.getRandomValues(new Uint8Array(16));
+      var key = await deriveKey(password, salt, DEFAULT_ITERATIONS);
+      var data = { records: [] };
+      var envelope = await encryptPayload(data, key, salt, DEFAULT_ITERATIONS);
+
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+      openVault(
+        data,
+        key,
+        salt,
+        DEFAULT_ITERATIONS,
+        envelope,
+        'Coffre de test créé. Utilise uniquement des données fictives.'
+      );
+    } catch (error) {
+      setAuthStatus('Création impossible dans le stockage local de ce navigateur.', true);
+      $('createSubmit').disabled = false;
+    }
+  });
+
+  $('unlockForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    var password = $('unlockPass').value;
+
+    try {
+      $('unlockSubmit').disabled = true;
+      setAuthStatus('Déchiffrement en cours. Cela peut prendre quelques secondes…');
+
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        refreshAuth('Aucun coffre local trouvé. Crée un coffre ou restaure une sauvegarde.', true);
+        return;
+      }
+
+      var envelope = JSON.parse(raw);
+      var opened = await decryptEnvelope(envelope, password);
+
+      openVault(
+        opened.data,
+        opened.key,
+        opened.salt,
+        opened.iterations,
+        envelope,
+        'Coffre déverrouillé.'
+      );
+    } catch (error) {
+      setAuthStatus(
+        'Déchiffrement impossible : phrase incorrecte, coffre local illisible ou données altérées.',
+        true
+      );
+    } finally {
+      $('unlockSubmit').disabled = false;
+      $('unlockPass').value = '';
+    }
+  });
+
+  $('restoreForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    var file = $('restoreFile').files && $('restoreFile').files[0];
+    var password = $('restorePass').value;
+
+    if (!file) {
+      setAuthStatus('Choisis un fichier de sauvegarde chiffrée.', true);
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAuthStatus('Fichier trop volumineux pour ce test.', true);
+      return;
+    }
+
+    try {
+      $('restoreSubmit').disabled = true;
+      setAuthStatus('Lecture et déchiffrement de la sauvegarde en cours…');
+
+      var text = await readFileAsText(file);
+      var envelope = JSON.parse(text);
+      var opened = await decryptEnvelope(envelope, password);
+
+      var existing = window.localStorage.getItem(STORAGE_KEY) !== null;
+      if (existing && !window.confirm(
+        'Cette restauration remplacera le coffre local de ce prototype. Continuer ?'
+      )) {
+        setAuthStatus('Restauration annulée. Le coffre local n’a pas été remplacé.');
+        return;
+      }
+
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
+      openVault(
+        opened.data,
+        opened.key,
+        opened.salt,
+        opened.iterations,
+        envelope,
+        'Sauvegarde chiffrée restaurée. Vérifie les entrées fictives.'
+      );
+    } catch (error) {
+      setAuthStatus(
+        'Restauration impossible : fichier non reconnu, phrase incorrecte ou sauvegarde endommagée.',
+        true
+      );
+    } finally {
+      $('restoreSubmit').disabled = false;
+      $('restorePass').value = '';
+      $('restoreFile').value = '';
+    }
+  });
+
+  $('recordForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    if (!vaultData || !vaultKey || saving) return;
+
+    var quantity = Number($('recordQuantity').value);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10000) {
+      setSaveStatus('Vérifie la quantité fictive.', true);
+      return;
+    }
+
+    var record = {
+      id: makeId(),
+      type: $('recordType').value,
+      name: $('recordName').value.trim(),
+      contact: $('recordContact').value.trim(),
+      phone: $('recordPhone').value.trim(),
+      email: $('recordEmail').value.trim(),
+      vehicle: $('recordVehicle').value.trim(),
+      date: $('recordDate').value,
+      purchase: $('recordPurchase').value.trim(),
+      reference: $('recordReference').value.trim(),
+      quantity: quantity,
+      stage: $('recordStage').value
+    };
+
+    if (!record.name || !record.purchase || !STAGES[record.stage]) {
+      setSaveStatus('Complète le nom et la description fictifs.', true);
+      return;
+    }
+
+    var nextData = { records: vaultData.records.concat([record]) };
+    var saved = await commitData(nextData);
+
+    if (saved) {
+      $('recordForm').reset();
+      $('recordDate').value = todayLocal();
+      $('recordQuantity').value = '1';
+      renderRecords();
+    }
+  });
+
+  $('recordsList').addEventListener('click', async function (event) {
+    var button = event.target.closest('button[data-remove-id]');
+    if (!button || !vaultData || saving) return;
+
+    var id = button.getAttribute('data-remove-id');
+    var exists = vaultData.records.some(function (r) { return r.id === id; });
+    if (!exists) return;
+
+    if (!window.confirm('Supprimer cette entrée fictive du coffre de test ?')) return;
+
+    var nextData = {
+      records: vaultData.records.filter(function (r) { return r.id !== id; })
+    };
+
+    var saved = await commitData(nextData);
+    if (saved) renderRecords();
+  });
+
+  $('backupButton').addEventListener('click', exportEncryptedBackup);
+
+  $('lockButton').addEventListener('click', function () {
+    lockVault('Coffre verrouillé. Les entrées enregistrées restent chiffrées dans le stockage local.');
+  });
+
+  document.addEventListener('click', noteActivity, true);
+  document.addEventListener('keydown', noteActivity, true);
+  document.addEventListener('input', noteActivity, true);
+  document.addEventListener('touchstart', noteActivity, { capture: true, passive: true });
+
+  document.addEventListener('visibilitychange', function () {
+    if (
+      document.visibilityState === 'visible' &&
+      vaultKey &&
+      Date.now() - lastActivity >= IDLE_MS
+    ) {
+      lockVault('Coffre verrouillé après une période d’inactivité.');
+    }
+  });
+
+  if (!supportsRequiredCrypto()) {
+    $('compat').hidden = false;
+    $('compat').textContent =
+      'Le chiffrement Web Crypto n’est pas disponible dans ce contexte. Ouvre cette page via HTTPS dans un navigateur compatible. Aucun coffre n’a été créé.';
+  } else {
+    refreshAuth();
+  }
+})();
+</script>
+</body>
+</html>
